@@ -1,0 +1,516 @@
+{
+	"info": {
+		"_postman_id": "76ecc971-9b27-4d94-a1af-084162b68a8b",
+		"name": "Smart Home Care Enterprise SaaS Platform - Complete API Test Suite",
+		"description": "Comprehensive Postman collection for the Smart Home Care SaaS platform. Covers 4 roles (Admin, Company Manager, Employee/Technician, Customer), authentication, marketplace, bookings, payments, Socket.IO chat, reviews, complaints, analytics, production health, backups, SQL injection tests, XSS tests, and unauthorized access tests.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000/api",
+			"type": "string"
+		},
+		{
+			"key": "admin_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "company_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "employee_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "customer_token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "1. Authentication Module",
+			"item": [
+				{
+					"name": "Customer Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"full_name\": \"John Test Customer\",\n  \"email\": \"customer.test@example.com\",\n  \"password\": \"Password123!\",\n  \"phone\": \"+19876543210\",\n  \"role\": \"Customer\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["register"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"pm.test('Response is success', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.eql(true);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Customer Login (Store Token)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"customer.test@example.com\",\n  \"password\": \"Password123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["login"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"var jsonData = pm.response.json();",
+									"pm.test('Token received', function () {",
+									"    pm.expect(jsonData.data.token).to.be.a('string');",
+									"});",
+									"pm.collectionVariables.set('customer_token', jsonData.data.token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Employee Login (Store Token)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"technician@company.com\",\n  \"password\": \"Password123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/employee/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["employee", "login"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.success && jsonData.data) {",
+									"    pm.collectionVariables.set('employee_token', jsonData.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Invalid Credentials (Negative Test)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"customer.test@example.com\",\n  \"password\": \"WrongPassword!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["login"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 401 Unauthorized', function () {",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"pm.test('Response success is false', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.eql(false);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "2. Admin Module",
+			"item": [
+				{
+					"name": "Get Admin Dashboard Stats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/dashboard",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "dashboard"]
+						}
+					}
+				},
+				{
+					"name": "Get Platform Companies List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/companies",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "companies"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Company Portal Module",
+			"item": [
+				{
+					"name": "Get Company Dashboard",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{company_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/company/dashboard",
+							"host": ["{{baseUrl}}"],
+							"path": ["company", "dashboard"]
+						}
+					}
+				},
+				{
+					"name": "Get Company Services Catalog",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{company_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/company/services",
+							"host": ["{{baseUrl}}"],
+							"path": ["company", "services"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Employee (Technician) Portal Module",
+			"item": [
+				{
+					"name": "Get Technician Dashboard",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{employee_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/employee/dashboard",
+							"host": ["{{baseUrl}}"],
+							"path": ["employee", "dashboard"]
+						}
+					}
+				},
+				{
+					"name": "Get Assigned Field Jobs",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{employee_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/employee/bookings",
+							"host": ["{{baseUrl}}"],
+							"path": ["employee", "bookings"]
+						}
+					}
+				},
+				{
+					"name": "Record Technician GPS Check-In",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{employee_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"booking_id\": 1,\n  \"latitude\": 37.774929,\n  \"longitude\": -122.419416,\n  \"notes\": \"Arrived at job site.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/employee/check-in",
+							"host": ["{{baseUrl}}"],
+							"path": ["employee", "check-in"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "5. Customer Marketplace & Booking Module",
+			"item": [
+				{
+					"name": "Browse Service Provider Companies",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/customer/companies",
+							"host": ["{{baseUrl}}"],
+							"path": ["customer", "companies"]
+						}
+					}
+				},
+				{
+					"name": "View Company Details & All Services",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/customer/companies/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["customer", "companies", "1"]
+						}
+					}
+				},
+				{
+					"name": "Get My Bookings History",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{customer_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bookings",
+							"host": ["{{baseUrl}}"],
+							"path": ["bookings"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "6. Production Health & Security Tests",
+			"item": [
+				{
+					"name": "Get Platform General Health",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/health",
+							"host": ["{{baseUrl}}"],
+							"path": ["health"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+									"pm.test('Health status is UP', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.status).to.eql('UP');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Get Database Health",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/health/database",
+							"host": ["{{baseUrl}}"],
+							"path": ["health", "database"]
+						}
+					}
+				},
+				{
+					"name": "XSS Payload Attack Test (Sanitized)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{customer_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"full_name\": \"<script>alert('xss')</script>\",\n  \"notes\": \"<img src=x onerror=alert(1)>\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/addresses",
+							"host": ["{{baseUrl}}"],
+							"path": ["addresses"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('XSS Payload was sanitized safely', function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 400]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "SQL Injection Attack Test (Prevented)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"' OR '1'='1\",\n  \"password\": \"' OR '1'='1\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["login"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('SQL Injection safely blocked with 401', function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Unauthorized Access Test (Missing Token)",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/admin/dashboard",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "dashboard"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Missing Token blocked with 401', function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

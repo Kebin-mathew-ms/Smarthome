@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS companies (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  company_name VARCHAR(150) NOT NULL,
+  company_email VARCHAR(150) NOT NULL,
+  company_phone VARCHAR(30) NOT NULL,
+  logo VARCHAR(255) NULL,
+  address TEXT NOT NULL,
+  city VARCHAR(100) NOT NULL,
+  district VARCHAR(100) NULL,
+  state VARCHAR(100) NOT NULL,
+  postal_code VARCHAR(20) NOT NULL,
+  description TEXT NULL,
+  status ENUM('active', 'pending', 'inactive') NOT NULL DEFAULT 'pending',
+  created_by INT NULL,
+  deleted_at TIMESTAMP NULL DEFAULT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_companies_status (status),
+  INDEX idx_companies_created_by (created_by),
+  CONSTRAINT fk_companies_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

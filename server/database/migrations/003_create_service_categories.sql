@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS service_categories (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  category_name VARCHAR(100) NOT NULL UNIQUE,
+  icon VARCHAR(255) NULL,
+  description TEXT NULL,
+  status ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
+  deleted_at TIMESTAMP NULL DEFAULT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_categories_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
