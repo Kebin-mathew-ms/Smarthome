@@ -10,46 +10,44 @@ const warrantyController = require('../controllers/warranty.controller');
 const couponController = require('../controllers/coupon.controller');
 const userNotificationController = require('../controllers/userNotification.controller');
 
-router.use(authenticate);
-
 // -------------------------------------------------------------
 // Reviews & Ratings Endpoints
 // -------------------------------------------------------------
-router.get('/reviews', reviewController.getCompanyReviews);
-router.get('/reviews/my', reviewController.getUserReviews);
-router.post('/reviews', upload.array('review_media', 5), reviewController.createReview);
-router.post('/reviews/:id/reply', reviewController.addReply);
+router.get('/reviews', authenticate, reviewController.getCompanyReviews);
+router.get('/reviews/my', authenticate, reviewController.getUserReviews);
+router.post('/reviews', authenticate, upload.array('review_media', 5), reviewController.createReview);
+router.post('/reviews/:id/reply', authenticate, reviewController.addReply);
 
 // -------------------------------------------------------------
 // Support Complaints & Tickets Endpoints
 // -------------------------------------------------------------
-router.get('/complaints', complaintController.getComplaints);
-router.get('/complaints/:id', complaintController.getComplaintById);
-router.post('/complaints', upload.array('complaint_attachments', 5), complaintController.createComplaint);
-router.post('/complaints/:id/message', upload.array('complaint_attachments', 5), complaintController.addMessage);
-router.patch('/complaints/:id/status', complaintController.updateStatus);
+router.get('/complaints', authenticate, complaintController.getComplaints);
+router.get('/complaints/:id', authenticate, complaintController.getComplaintById);
+router.post('/complaints', authenticate, upload.array('complaint_attachments', 5), complaintController.createComplaint);
+router.post('/complaints/:id/message', authenticate, upload.array('complaint_attachments', 5), complaintController.addMessage);
+router.patch('/complaints/:id/status', authenticate, complaintController.updateStatus);
 
 // -------------------------------------------------------------
 // Warranty Management Endpoints
 // -------------------------------------------------------------
-router.get('/warranties', warrantyController.getWarranties);
-router.get('/warranties/booking/:bookingId', warrantyController.getWarrantyByBookingId);
-router.post('/warranties', warrantyController.issueWarranty);
+router.get('/warranties', authenticate, warrantyController.getWarranties);
+router.get('/warranties/booking/:bookingId', authenticate, warrantyController.getWarrantyByBookingId);
+router.post('/warranties', authenticate, warrantyController.issueWarranty);
 
 // -------------------------------------------------------------
 // Coupons & Reward Points Endpoints
 // -------------------------------------------------------------
-router.get('/coupons', couponController.getActiveCoupons);
-router.get('/coupons/rewards', couponController.getUserRewardPoints);
-router.post('/coupon/apply', couponController.validateAndApplyCoupon);
-router.post('/admin/coupons', couponController.createCoupon);
+router.get('/coupons', authenticate, couponController.getActiveCoupons);
+router.get('/coupons/rewards', authenticate, couponController.getUserRewardPoints);
+router.post('/coupon/apply', authenticate, couponController.validateAndApplyCoupon);
+router.post('/admin/coupons', authenticate, couponController.createCoupon);
 
 // -------------------------------------------------------------
 // Notifications Endpoints
 // -------------------------------------------------------------
-router.get('/notifications', userNotificationController.getUserNotifications);
-router.patch('/notifications/read', userNotificationController.markRead);
-router.patch('/notifications/read-all', userNotificationController.markAllRead);
-router.delete('/notifications/:id', userNotificationController.deleteNotification);
+router.get('/notifications', authenticate, userNotificationController.getUserNotifications);
+router.patch('/notifications/read', authenticate, userNotificationController.markRead);
+router.patch('/notifications/read-all', authenticate, userNotificationController.markAllRead);
+router.delete('/notifications/:id', authenticate, userNotificationController.deleteNotification);
 
 module.exports = router;

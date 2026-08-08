@@ -2,12 +2,10 @@ const express = require('express');
 const router = express.Router();
 
 const { authenticate, authorize } = require('../middlewares/auth.middleware');
-const requireCompanyContext = require('../middlewares/companyContext.middleware');
 const validate = require('../middlewares/validate.middleware');
 
 const addressController = require('../controllers/address.controller');
 const bookingController = require('../controllers/booking.controller');
-const companyBookingController = require('../controllers/companyBooking.controller');
 const adminBookingController = require('../controllers/adminBooking.controller');
 const paymentController = require('../controllers/payment.controller');
 const invoiceController = require('../controllers/invoice.controller');
@@ -35,17 +33,12 @@ router.patch('/bookings/cancel', authenticate, bookingController.cancelBooking);
 router.patch('/bookings/reschedule', authenticate, bookingController.rescheduleBooking);
 
 // -------------------------------------------------------------
-// Company Provider Dispatch Booking Endpoints (Require Auth + Company Role)
-// -------------------------------------------------------------
-router.get('/company/bookings', authenticate, authorize('Company'), requireCompanyContext, companyBookingController.getCompanyBookings);
-router.patch('/company/bookings/status', authenticate, authorize('Company'), requireCompanyContext, companyBookingController.updateBookingStatus);
-router.patch('/company/bookings/assign', authenticate, authorize('Company'), requireCompanyContext, companyBookingController.assignEmployees);
-
-// -------------------------------------------------------------
 // Admin Platform Booking Endpoints (Require Auth + Admin Role)
 // -------------------------------------------------------------
 router.get('/admin/bookings', authenticate, authorize('Admin'), adminBookingController.getAllBookings);
 router.get('/admin/bookings/export', authenticate, authorize('Admin'), adminBookingController.exportBookingsCSV);
+router.patch('/admin/bookings/status', authenticate, authorize('Admin'), adminBookingController.updateBookingStatus);
+router.patch('/admin/bookings/assign', authenticate, authorize('Admin'), adminBookingController.assignVolunteers);
 
 // -------------------------------------------------------------
 // Payments & Invoices Endpoints

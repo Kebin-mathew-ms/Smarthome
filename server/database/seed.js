@@ -51,7 +51,7 @@ async function seed() {
           email: 'ravi@brightfix.com',
           phone: '+91-9000000002',
           password: companyPassword,
-          role: 'Company',
+          role: 'User',
           status: 'active',
         },
         {
@@ -60,7 +60,7 @@ async function seed() {
           email: 'priya@cleanpro.com',
           phone: '+91-9000000003',
           password: companyPassword,
-          role: 'Company',
+          role: 'User',
           status: 'active',
         },
         {
@@ -87,7 +87,7 @@ async function seed() {
           email: 'karthik@brightfix.com',
           phone: '+91-9200000001',
           password: empPassword,
-          role: 'Employee',
+          role: 'Volunteer',
           status: 'active',
         },
         {
@@ -96,16 +96,16 @@ async function seed() {
           email: 'divya@cleanpro.com',
           phone: '+91-9200000003',
           password: empPassword,
-          role: 'Employee',
+          role: 'Volunteer',
           status: 'active',
         }
       ]);
 
-    // ── 2. Companies ──────────────────────────────────────────────────────────
-    logger.info('  → Seeding companies...');
+    // ── 2. Companies (Dummy for compatibility) ───────────────────────────────────
+    logger.info('  → Seeding companies (compatibility fallback)...');
     const [company1Id, company2Id] = await insert(connection, 'companies', [
       {
-        company_name: 'BrightFix Home Services',
+        company_name: 'Platform Service Provider A',
         company_email: 'contact@brightfix.com',
         company_phone: '+91-9100000001',
         address: '14, MG Road, Indiranagar',
@@ -113,12 +113,12 @@ async function seed() {
         district: 'Bengaluru Urban',
         state: 'Karnataka',
         postal_code: '560038',
-        description: 'Premium electrical and plumbing repair and maintenance services across Bengaluru.',
+        description: 'Global maintenance providers managed by Admin.',
         status: 'active',
         created_by: adminId,
       },
       {
-        company_name: 'CleanPro Solutions',
+        company_name: 'Platform Service Provider B',
         company_email: 'hello@cleanpro.com',
         company_phone: '+91-9100000002',
         address: '7, Anna Salai, T Nagar',
@@ -126,14 +126,14 @@ async function seed() {
         district: 'Chennai',
         state: 'Tamil Nadu',
         postal_code: '600017',
-        description: 'Professional home deep cleaning, sofa sanitization and hygiene experts.',
+        description: 'Eco-friendly cleaning and logistics.',
         status: 'active',
         created_by: adminId,
       },
     ]);
 
-    // ── 3. Company Users & Settings ───────────────────────────────────────────
-    logger.info('  → Seeding company settings...');
+    // ── 3. Company Users & Settings (Compatibility fallback) ────────────────────
+    logger.info('  → Seeding company settings (compatibility)...');
     await insert(connection, 'company_users', [
       { company_id: company1Id, user_id: company1UserId, designation: 'Owner' },
       { company_id: company2Id, user_id: company2UserId, designation: 'Director' },
@@ -147,9 +147,9 @@ async function seed() {
         service_radius: 30.00,
         minimum_booking_amount: 299.00,
         company_status: 'active',
-        about_us: 'BrightFix has been serving homes across Bengaluru since 2018 with certified technicians.',
-        mission: 'To make home maintenance stress-free for every household.',
-        vision: 'Be the most trusted home services brand in South India.',
+        about_us: 'Admin managed local services.',
+        mission: 'Stress-free home maintenance.',
+        vision: 'Trusted platform.',
         emergency_service: true,
         website: 'https://brightfix.com',
       },
@@ -160,9 +160,9 @@ async function seed() {
         service_radius: 20.00,
         minimum_booking_amount: 499.00,
         company_status: 'active',
-        about_us: 'CleanPro uses eco-friendly products and trained staff for spotless results.',
-        mission: 'Deliver hygienic living spaces with green cleaning practices.',
-        vision: 'Lead sustainable cleaning services in Tamil Nadu.',
+        about_us: 'Platform sanitation and hygiene.',
+        mission: 'Clean living spaces.',
+        vision: 'Sustainable clean.',
         emergency_service: false,
         website: 'https://cleanpro.com',
       },
@@ -213,7 +213,7 @@ async function seed() {
     logger.info('  → Seeding services & packages...');
     const [svc1Id, svc2Id, svc3Id, svc4Id] = await insert(connection, 'services', [
       {
-        company_id: company1Id,
+        company_id: null,
         category_id: electricalCatId,
         subcategory_id: wiringSubId,
         service_name: 'Complete Home Electrical Wiring',
@@ -225,7 +225,7 @@ async function seed() {
         status: 'active',
       },
       {
-        company_id: company1Id,
+        company_id: null,
         category_id: plumbingCatId,
         subcategory_id: pipeSubId,
         service_name: 'Pipe Leak Detection & Repair',
@@ -237,7 +237,7 @@ async function seed() {
         status: 'active',
       },
       {
-        company_id: company2Id,
+        company_id: null,
         category_id: cleaningCatId,
         subcategory_id: deepCleanSubId,
         service_name: '3BHK Full Deep Cleaning',
@@ -249,7 +249,7 @@ async function seed() {
         status: 'active',
       },
       {
-        company_id: company2Id,
+        company_id: null,
         category_id: cleaningCatId,
         subcategory_id: sofaSubId,
         service_name: 'Sofa Steam Cleaning',
@@ -277,24 +277,24 @@ async function seed() {
       { service_id: svc4Id, package_name: '3-Seater Sofa Clean', package_description: 'Steam clean for 3-seater sofa.', price: 999.00, estimated_duration: '1 hour', status: 'active' },
     ]);
 
-    // ── 6. Employees & Skills ─────────────────────────────────────────────────
-    logger.info('  → Seeding employees & skills...');
-    const [emp1Id, emp2Id, emp3Id, emp4Id] = await insert(connection, 'company_employees', [
-      { company_id: company1Id, employee_name: 'Karthik Reddy',   email: 'karthik@brightfix.com', phone: '+91-9200000001', designation: 'Senior Electrician', address: 'Koramangala, Bengaluru', status: 'active' },
-      { company_id: company1Id, employee_name: 'Suresh Kumar',    email: 'suresh@brightfix.com',  phone: '+91-9200000002', designation: 'Plumber',            address: 'JP Nagar, Bengaluru',   status: 'active' },
-      { company_id: company2Id, employee_name: 'Divya Lakshmi',   email: 'divya@cleanpro.com',    phone: '+91-9200000003', designation: 'Lead Cleaner',        address: 'Velachery, Chennai',    status: 'active' },
-      { company_id: company2Id, employee_name: 'Muthu Selvam',    email: 'muthu@cleanpro.com',    phone: '+91-9200000004', designation: 'Cleaning Technician', address: 'Adyar, Chennai',        status: 'active' },
+    // ── 6. Volunteers & Skills ────────────────────────────────────────────────
+    logger.info('  → Seeding volunteers & skills...');
+    const [vol1Id, vol2Id, vol3Id, vol4Id] = await insert(connection, 'volunteers', [
+      { company_id: null, volunteer_name: 'Karthik Reddy',   email: 'karthik@brightfix.com', phone: '+91-9200000001', designation: 'Senior Electrician', address: 'Koramangala, Bengaluru', status: 'active' },
+      { company_id: null, volunteer_name: 'Suresh Kumar',    email: 'suresh@brightfix.com',  phone: '+91-9200000002', designation: 'Plumber',            address: 'JP Nagar, Bengaluru',   status: 'active' },
+      { company_id: null, volunteer_name: 'Divya Lakshmi',   email: 'divya@cleanpro.com',    phone: '+91-9200000003', designation: 'Lead Cleaner',        address: 'Velachery, Chennai',    status: 'active' },
+      { company_id: null, volunteer_name: 'Muthu Selvam',    email: 'muthu@cleanpro.com',    phone: '+91-9200000004', designation: 'Cleaning Technician', address: 'Adyar, Chennai',        status: 'active' },
     ]);
 
-    await insert(connection, 'employee_skills', [
-      { employee_id: emp1Id, subcategory_id: wiringSubId, experience_years: 6 },
-      { employee_id: emp2Id, subcategory_id: pipeSubId,   experience_years: 4 },
-      { employee_id: emp3Id, subcategory_id: deepCleanSubId, experience_years: 5 },
-      { employee_id: emp4Id, subcategory_id: sofaSubId,   experience_years: 3 },
+    await insert(connection, 'volunteer_skills', [
+      { volunteer_id: vol1Id, subcategory_id: wiringSubId, experience_years: 6 },
+      { volunteer_id: vol2Id, subcategory_id: pipeSubId,   experience_years: 4 },
+      { volunteer_id: vol3Id, subcategory_id: deepCleanSubId, experience_years: 5 },
+      { volunteer_id: vol4Id, subcategory_id: sofaSubId,   experience_years: 3 },
     ]);
 
-    // ── 7. Marketplace: Addresses, Coupons, Favorites ─────────────────────────
-    logger.info('  → Seeding marketplace tables (addresses, coupons, rewards, favorites)...');
+    // ── 7. Marketplace: Addresses, Coupons ────────────────────────────────────
+    logger.info('  → Seeding marketplace tables (addresses, coupons)...');
     const [addr1Id, addr2Id] = await insert(connection, 'addresses', [
       { user_id: customer1Id, label: 'Home', contact_person: 'Arjun Mehta', phone: '+91-9000000004', house_name: '402, Oakwood Apartments', street: '100 Feet Road, Indiranagar', city: 'Bengaluru', district: 'Bengaluru Urban', state: 'Karnataka', postal_code: '560038', is_default: true },
       { user_id: customer2Id, label: 'Home', contact_person: 'Sneha Pillai', phone: '+91-9000000005', house_name: '12, Greenfield Villa', street: 'ECR Road, Thiruvanmiyur', city: 'Chennai', district: 'Chennai', state: 'Tamil Nadu', postal_code: '600041', is_default: true },
@@ -308,24 +308,13 @@ async function seed() {
       { coupon_id: coupon1Id, user_id: customer1Id, used: false }
     ]);
 
-    await insert(connection, 'favorites', [
-      { user_id: customer1Id, company_id: company1Id },
-      { user_id: customer1Id, service_id: svc1Id },
-      { user_id: customer2Id, company_id: company2Id }
-    ]);
-
-    await insert(connection, 'company_followers', [
-      { user_id: customer1Id, company_id: company1Id },
-      { user_id: customer2Id, company_id: company2Id }
-    ]);
-
     // ── 8. Bookings & Payments ────────────────────────────────────────────────
-    logger.info('  → Seeding bookings, status history, employees & payments...');
+    logger.info('  → Seeding bookings, status history, volunteers & payments...');
     const [booking1Id, booking2Id] = await insert(connection, 'bookings', [
       {
         booking_number: 'BK-2026-001',
         user_id: customer1Id,
-        company_id: company1Id,
+        company_id: null,
         service_id: svc1Id,
         package_id: pkg1Id,
         address_id: addr1Id,
@@ -341,7 +330,7 @@ async function seed() {
       {
         booking_number: 'BK-2026-002',
         user_id: customer2Id,
-        company_id: company2Id,
+        company_id: null,
         service_id: svc3Id,
         package_id: pkg3Id,
         address_id: addr2Id,
@@ -368,9 +357,9 @@ async function seed() {
       { booking_id: booking2Id, status: 'Work In Progress', remarks: 'Team arrived on site', changed_by: 'Divya Lakshmi' },
     ]);
 
-    await insert(connection, 'booking_employees', [
-      { booking_id: booking1Id, employee_id: emp1Id },
-      { booking_id: booking2Id, employee_id: emp3Id }
+    await insert(connection, 'booking_volunteers', [
+      { booking_id: booking1Id, volunteer_id: vol1Id },
+      { booking_id: booking2Id, volunteer_id: vol3Id }
     ]);
 
     await insert(connection, 'payments', [
@@ -391,12 +380,12 @@ async function seed() {
 
     await insert(connection, 'chat_participants', [
       { room_id: room1Id, user_id: customer1Id, participant_role: 'Customer' },
-      { room_id: room1Id, user_id: company1UserId, participant_role: 'Company' }
+      { room_id: room1Id, user_id: adminId, participant_role: 'Admin' }
     ]);
 
     await insert(connection, 'chat_messages', [
-      { room_id: room1Id, sender_id: customer1Id, message: 'Hello! What time will technician Karthik arrive?' },
-      { room_id: room1Id, sender_id: company1UserId, message: 'Hi Arjun! Karthik will be at your location by 10:00 AM today.' }
+      { room_id: room1Id, sender_id: customer1Id, message: 'Hello! What time will volunteer Karthik arrive?' },
+      { room_id: room1Id, sender_id: adminId, message: 'Hi Arjun! Karthik will be at your location by 10:00 AM today.' }
     ]);
 
     await insert(connection, 'work_updates', [
@@ -408,10 +397,10 @@ async function seed() {
     const [review1Id] = await insert(connection, 'reviews', [
       {
         booking_id: booking1Id,
-        company_id: company1Id,
+        company_id: null,
         service_id: svc1Id,
         user_id: customer1Id,
-        employee_id: emp1Id,
+        employee_id: null,
         rating: 5.00,
         review_title: 'Exceptional Electrical Work!',
         review_description: 'Karthik was punctual, professional and completed the wiring seamlessly.',
@@ -419,20 +408,11 @@ async function seed() {
       }
     ]);
 
-    await insert(connection, 'review_replies', [
-      { review_id: review1Id, company_id: company1Id, reply: 'Thank you Arjun! Happy to keep your home safe.' }
-    ]);
-
-    await insert(connection, 'company_reviews_summary', [
-      { company_id: company1Id, average_rating: 5.00, total_reviews: 1 },
-      { company_id: company2Id, average_rating: 4.80, total_reviews: 3 }
-    ]);
-
     const [complaint1Id] = await insert(connection, 'complaints', [
       {
         ticket_number: 'TCK-2026-001',
         user_id: customer1Id,
-        company_id: company1Id,
+        company_id: null,
         booking_id: booking1Id,
         subject: 'Invoice query',
         description: 'Wanted clarification on discount application.',
@@ -448,7 +428,7 @@ async function seed() {
     await insert(connection, 'warranties', [
       {
         booking_id: booking1Id,
-        company_id: company1Id,
+        company_id: null,
         warranty_number: 'WRN-2026-001',
         title: '1 Year Electrical Warranty',
         description: 'Coverage on internal wiring joints and DB switches.',
@@ -466,31 +446,28 @@ async function seed() {
 
     await insert(connection, 'notifications', [
       { user_id: customer1Id, title: 'Booking Completed', message: 'Your booking BK-2026-001 has been marked as Completed.', notification_type: 'booking', read_status: false },
-      { user_id: customer2Id, title: 'Technician Assigned', message: 'Divya Lakshmi has been assigned to your booking BK-2026-002.', notification_type: 'booking', read_status: false }
+      { user_id: customer2Id, title: 'Volunteer Assigned', message: 'Divya Lakshmi has been assigned to your booking BK-2026-002.', notification_type: 'booking', read_status: false }
     ]);
 
     await insert(connection, 'activity_logs', [
-      { user_id: adminId, activity: 'Seeded system database with test data', ip_address: '127.0.0.1' },
-      { user_id: company1UserId, activity: 'Updated company profile details', ip_address: '127.0.0.1' }
+      { user_id: adminId, activity: 'Seeded system database with test data', ip_address: '127.0.0.1' }
     ]);
 
-    await insert(connection, 'employee_checkins', [
-      { employee_id: emp1Id, booking_id: booking1Id, check_in_time: '2026-07-20 09:55:00', check_out_time: '2026-07-20 12:30:00', notes: 'Job completed smoothly.' }
+    await insert(connection, 'volunteer_checkins', [
+      { volunteer_id: vol1Id, booking_id: booking1Id, check_in_time: '2026-07-20 09:55:00', check_out_time: '2026-07-20 12:30:00', notes: 'Job completed smoothly.' }
     ]);
 
     await connection.commit();
     logger.info('');
-    logger.info('✅  ALL 20+ TABLES SEEDED SUCCESSFULLY!');
+    logger.info('✅  ALL TABLES SEEDED SUCCESSFULLY!');
     logger.info('');
     logger.info('─────────────────────────────────────────────────────────────');
     logger.info('  🔑  System Login Accounts');
     logger.info('─────────────────────────────────────────────────────────────');
     logger.info('  SUPER ADMIN      : admin@home.com     / Admin@123');
-    logger.info('  BRIGHTFIX OWNER  : ravi@brightfix.com / Company@123');
-    logger.info('  CLEANPRO OWNER   : priya@cleanpro.com / Company@123');
     logger.info('  CUSTOMER 1       : arjun@gmail.com    / User@123');
     logger.info('  CUSTOMER 2       : sneha@gmail.com    / User@123');
-    logger.info('  TECHNICIAN 1     : karthik@brightfix.com / Emp@123');
+    logger.info('  VOLUNTEER 1      : karthik@brightfix.com / Emp@123');
     logger.info('─────────────────────────────────────────────────────────────');
 
   } catch (error) {

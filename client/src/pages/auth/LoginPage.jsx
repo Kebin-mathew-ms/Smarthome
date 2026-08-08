@@ -16,10 +16,8 @@ const getRoleDefaultRoute = (role) => {
   switch (role) {
     case ROLES.ADMIN:
       return ROUTES.ADMIN_DASHBOARD;
-    case ROLES.COMPANY:
-      return ROUTES.COMPANY_DASHBOARD;
-    case ROLES.EMPLOYEE:
-      return ROUTES.EMPLOYEE_DASHBOARD;
+    case ROLES.VOLUNTEER:
+      return ROUTES.VOLUNTEER_DASHBOARD;
     case ROLES.USER:
     default:
       return ROUTES.HOME;
@@ -156,9 +154,9 @@ const LoginPage = () => {
         </Text>
         <div style={{ paddingTop: 8, borderTop: '1px solid #f1f5f9' }}>
           <Text type="secondary" style={{ fontSize: 13 }}>
-            Field Technician?{' '}
-            <Link to={ROUTES.EMPLOYEE_LOGIN} style={{ color: '#059669', fontWeight: 600 }}>
-              Sign In to Technician Portal →
+            Staff Volunteer?{' '}
+            <Link to={ROUTES.VOLUNTEER_LOGIN} style={{ color: '#059669', fontWeight: 600 }}>
+              Sign In to Volunteer Portal →
             </Link>
           </Text>
         </div>

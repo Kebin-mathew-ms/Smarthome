@@ -44,9 +44,7 @@ const RegisterPage = () => {
         login(newUser, response.data.token);
         
         let destination = ROUTES.HOME;
-        if (newUser?.role === ROLES.COMPANY) {
-          destination = ROUTES.COMPANY_DASHBOARD;
-        } else if (newUser?.role === ROLES.ADMIN) {
+        if (newUser?.role === ROLES.ADMIN) {
           destination = ROUTES.ADMIN_DASHBOARD;
         }
         navigate(destination, { replace: true });
@@ -158,18 +156,6 @@ const RegisterPage = () => {
           )}
         />
 
-        <Controller
-          name="role"
-          control={control}
-          render={({ field }) => (
-            <FormField label="Account Type" required>
-              <Select {...field} size="large" style={{ width: '100%' }}>
-                <Option value={ROLES.USER}>Homeowner / Customer</Option>
-                <Option value={ROLES.COMPANY}>Service Company</Option>
-              </Select>
-            </FormField>
-          )}
-        />
 
         <Controller
           name="password"

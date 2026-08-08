@@ -81,7 +81,7 @@ const BookingWizardPage = () => {
     return (
       <div>
         <PageHeader title="Service Not Found" />
-        <Button onClick={() => navigate(ROUTES.COMPANIES)}>Return to Marketplace</Button>
+        <Button onClick={() => navigate(ROUTES.HOME)}>Return to Home</Button>
       </div>
     );
   }
@@ -107,7 +107,6 @@ const BookingWizardPage = () => {
     setSubmitting(true);
     try {
       const payload = {
-        company_id: service.company_id,
         service_id: service.id,
         package_id: selectedPackageId,
         address_id: selectedAddressId,
@@ -157,7 +156,7 @@ const BookingWizardPage = () => {
     <div>
       <PageHeader
         title={`Book Service: ${service.service_name}`}
-        subtitle={`Provider: ${service.company_name}`}
+        subtitle="Direct Booking Portal"
       />
 
       <Card bordered={false} style={{ marginBottom: 24, borderRadius: 16 }}>
@@ -313,7 +312,7 @@ const BookingWizardPage = () => {
 
             <Descriptions column={2} bordered size="small" style={{ marginBottom: 24 }}>
               <Descriptions.Item label="Service">{service.service_name}</Descriptions.Item>
-              <Descriptions.Item label="Provider">{service.company_name}</Descriptions.Item>
+
               <Descriptions.Item label="Package">{pkgObj ? pkgObj.package_name : 'Standard'}</Descriptions.Item>
               <Descriptions.Item label="Date & Time">{scheduledDate.format('YYYY-MM-DD')} ({scheduledTime})</Descriptions.Item>
               <Descriptions.Item label="Payment Method">{paymentMethod}</Descriptions.Item>

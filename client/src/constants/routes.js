@@ -7,43 +7,25 @@ export const ROUTES = {
 
   // Admin Routes
   ADMIN_DASHBOARD: '/admin/dashboard',
-  ADMIN_COMPANIES: '/admin/companies',
-  ADMIN_ADD_COMPANY: '/admin/companies/new',
-  ADMIN_EDIT_COMPANY: '/admin/companies/:id/edit',
-  ADMIN_COMPANY_DETAILS: '/admin/companies/:id',
+  ADMIN_VOLUNTEERS: '/admin/volunteers',
   ADMIN_CATEGORIES: '/admin/categories',
   ADMIN_SUBCATEGORIES: '/admin/subcategories',
+  ADMIN_SERVICES: '/admin/services',
+  ADMIN_PACKAGES: '/admin/packages',
   ADMIN_USERS: '/admin/users',
   ADMIN_AUDIT_LOGS: '/admin/audit-logs',
   ADMIN_SETTINGS: '/admin/settings',
   ADMIN_BOOKINGS: '/admin/bookings',
 
-  // Company Portal Routes
-  COMPANY_DASHBOARD: '/company/dashboard',
-  COMPANY_PROFILE: '/company/profile',
-  COMPANY_SERVICES: '/company/services',
-  COMPANY_ADD_SERVICE: '/company/services/new',
-  COMPANY_EDIT_SERVICE: '/company/services/:id/edit',
-  COMPANY_SERVICE_DETAILS: '/company/services/:id',
-  COMPANY_PACKAGES: '/company/packages',
-  COMPANY_EMPLOYEES: '/company/employees',
-  COMPANY_EMPLOYEE_DETAILS: '/company/employees/:id',
-  COMPANY_GALLERY: '/company/gallery',
-  COMPANY_BOOKINGS: '/company/bookings',
-  COMPANY_ANALYTICS: '/company/analytics',
-
-  // Employee (Field Technician) Portal Routes
-  EMPLOYEE_LOGIN: '/employee/login',
-  EMPLOYEE_DASHBOARD: '/employee/dashboard',
-  EMPLOYEE_BOOKINGS: '/employee/bookings',
-  EMPLOYEE_BOOKING_DETAILS: '/employee/bookings/:id',
-  EMPLOYEE_ATTENDANCE: '/employee/attendance',
-  EMPLOYEE_WORKLOGS: '/employee/worklogs',
+  // Volunteer Portal Routes
+  VOLUNTEER_LOGIN: '/volunteer/login',
+  VOLUNTEER_DASHBOARD: '/volunteer/dashboard',
+  VOLUNTEER_BOOKINGS: '/volunteer/bookings',
+  VOLUNTEER_BOOKING_DETAILS: '/volunteer/bookings/:id',
+  VOLUNTEER_ATTENDANCE: '/volunteer/attendance',
+  VOLUNTEER_WORKLOGS: '/volunteer/worklogs',
 
   // Customer Marketplace & Booking Routes
-  COMPANIES: '/companies',
-  COMPANY_DETAILS: '/companies/:id',
-  SERVICE_DETAILS: '/services/:id',
   CATEGORIES: '/categories',
   FAVORITES: '/favorites',
   FOLLOWING: '/following',

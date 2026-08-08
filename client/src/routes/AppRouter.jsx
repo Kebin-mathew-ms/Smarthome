@@ -7,6 +7,7 @@ import RoleGuard from '../components/auth/RoleGuard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { ROUTES } from '../constants/routes';
 import { ROLES } from '../constants/roles';
+import { useAuth } from '../hooks/useAuth';
 
 // Lazy load pages for code-splitting
 const LoginPage = lazy(() => import('../pages/auth/LoginPage'));
@@ -18,31 +19,18 @@ const UnauthorizedPage = lazy(() => import('../pages/errors/UnauthorizedPage'));
 
 // Admin Pages
 const AdminDashboardPage = lazy(() => import('../pages/admin/AdminDashboardPage'));
-const CompaniesPage = lazy(() => import('../pages/admin/CompaniesPage'));
-const CompanyFormPage = lazy(() => import('../pages/admin/CompanyFormPage'));
-const CompanyDetailsPage = lazy(() => import('../pages/admin/CompanyDetailsPage'));
+const VolunteersPage = lazy(() => import('../pages/admin/VolunteersPage'));
 const CategoriesPage = lazy(() => import('../pages/admin/CategoriesPage'));
 const SubCategoriesPage = lazy(() => import('../pages/admin/SubCategoriesPage'));
+const AdminServicesPage = lazy(() => import('../pages/admin/AdminServicesPage'));
+const AdminPackagesPage = lazy(() => import('../pages/admin/AdminPackagesPage'));
 const UsersPage = lazy(() => import('../pages/admin/UsersPage'));
 const AuditLogsPage = lazy(() => import('../pages/admin/AuditLogsPage'));
 const AdminSettingsPage = lazy(() => import('../pages/admin/AdminSettingsPage'));
 const AdminBookingsPage = lazy(() => import('../pages/admin/AdminBookingsPage'));
 
-// Company Portal Pages
-const CompanyDashboardPage = lazy(() => import('../pages/company/CompanyDashboardPage'));
-const CompanyProfilePage = lazy(() => import('../pages/company/CompanyProfilePage'));
-const CompanyServicesPage = lazy(() => import('../pages/company/CompanyServicesPage'));
-const CompanyServiceFormPage = lazy(() => import('../pages/company/CompanyServiceFormPage'));
-const CompanyServiceDetailsPage = lazy(() => import('../pages/company/CompanyServiceDetailsPage'));
-const CompanyEmployeesPage = lazy(() => import('../pages/company/CompanyEmployeesPage'));
-const CompanyGalleryPage = lazy(() => import('../pages/company/CompanyGalleryPage'));
-const CompanyPackagesPage = lazy(() => import('../pages/company/CompanyPackagesPage'));
-const CompanyBookingDashboardPage = lazy(() => import('../pages/company/CompanyBookingDashboardPage'));
-
 // Customer Marketplace & Booking Pages
 const LandingPage = lazy(() => import('../pages/customer/LandingPage'));
-const CompanyListingPage = lazy(() => import('../pages/customer/CompanyListingPage'));
-const CustomerCompanyDetailsPage = lazy(() => import('../pages/customer/CustomerCompanyDetailsPage'));
 const CustomerServiceDetailsPage = lazy(() => import('../pages/customer/CustomerServiceDetailsPage'));
 const FavoritesPage = lazy(() => import('../pages/customer/FavoritesPage'));
 const FollowingPage = lazy(() => import('../pages/customer/FollowingPage'));
@@ -65,20 +53,19 @@ const CouponsPage = lazy(() => import('../pages/customer/CouponsPage'));
 
 // Phase 8 & 9 Analytics, Operations & Health Pages
 const AnalyticsDashboardPage = lazy(() => import('../pages/admin/AnalyticsDashboardPage'));
-const CompanyAnalyticsPage = lazy(() => import('../pages/company/CompanyAnalyticsPage'));
 const ReportsCenterPage = lazy(() => import('../pages/admin/ReportsCenterPage'));
 const SystemHealthPage = lazy(() => import('../pages/admin/SystemHealthPage'));
 const AnnouncementsPage = lazy(() => import('../pages/admin/AnnouncementsPage'));
 const ActivityLogsPage = lazy(() => import('../pages/admin/ActivityLogsPage'));
 const ProductionHealthPage = lazy(() => import('../pages/admin/ProductionHealthPage'));
 
-// Employee (Technician) Portal Pages
-const EmployeeLoginPage = lazy(() => import('../pages/auth/EmployeeLoginPage'));
-const EmployeeDashboardPage = lazy(() => import('../pages/employee/EmployeeDashboardPage'));
-const EmployeeBookingsPage = lazy(() => import('../pages/employee/EmployeeBookingsPage'));
-const EmployeeBookingDetailsPage = lazy(() => import('../pages/employee/EmployeeBookingDetailsPage'));
-const EmployeeAttendancePage = lazy(() => import('../pages/employee/EmployeeAttendancePage'));
-const EmployeeWorkLogsPage = lazy(() => import('../pages/employee/EmployeeWorkLogsPage'));
+// Volunteer Portal Pages
+const VolunteerLoginPage = lazy(() => import('../pages/auth/VolunteerLoginPage'));
+const VolunteerDashboardPage = lazy(() => import('../pages/volunteer/VolunteerDashboardPage'));
+const VolunteerBookingsPage = lazy(() => import('../pages/volunteer/VolunteerBookingsPage'));
+const VolunteerBookingDetailsPage = lazy(() => import('../pages/volunteer/VolunteerBookingDetailsPage'));
+const VolunteerAttendancePage = lazy(() => import('../pages/volunteer/VolunteerAttendancePage'));
+const VolunteerWorkLogsPage = lazy(() => import('../pages/volunteer/VolunteerWorkLogsPage'));
 
 const DashboardRedirect = () => {
   const { user } = useAuth();
@@ -87,10 +74,8 @@ const DashboardRedirect = () => {
   switch (user.role) {
     case ROLES.ADMIN:
       return <Navigate to={ROUTES.ADMIN_DASHBOARD} replace />;
-    case ROLES.COMPANY:
-      return <Navigate to={ROUTES.COMPANY_DASHBOARD} replace />;
-    case ROLES.EMPLOYEE:
-      return <Navigate to={ROUTES.EMPLOYEE_DASHBOARD} replace />;
+    case ROLES.VOLUNTEER:
+      return <Navigate to={ROUTES.VOLUNTEER_DASHBOARD} replace />;
     case ROLES.USER:
     default:
       return <Navigate to={ROUTES.HOME} replace />;
@@ -106,7 +91,7 @@ const AppRouter = () => {
           <Route path={ROUTES.LOGIN} element={<LoginPage />} />
           <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
           <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
-          <Route path={ROUTES.EMPLOYEE_LOGIN} element={<EmployeeLoginPage />} />
+          <Route path={ROUTES.VOLUNTEER_LOGIN} element={<VolunteerLoginPage />} />
         </Route>
 
         {/* Marketplace & Portal Layout Wrapper */}
@@ -123,8 +108,6 @@ const AppRouter = () => {
 
           {/* Public Marketplace Routes */}
           <Route path={ROUTES.HOME} element={<LandingPage />} />
-          <Route path={ROUTES.COMPANIES} element={<CompanyListingPage />} />
-          <Route path={ROUTES.COMPANY_DETAILS} element={<CustomerCompanyDetailsPage />} />
           <Route path={ROUTES.SERVICE_DETAILS} element={<CustomerServiceDetailsPage />} />
           <Route path={ROUTES.CATEGORIES} element={<CategoriesPage />} />
           <Route path={ROUTES.SEARCH} element={<SearchResultsPage />} />
@@ -244,53 +227,53 @@ const AppRouter = () => {
             }
           />
 
-          {/* Employee (Technician) Only Routes */}
+          {/* Volunteer Only Routes */}
           <Route
-            path={ROUTES.EMPLOYEE_DASHBOARD}
+            path={ROUTES.VOLUNTEER_DASHBOARD}
             element={
               <ProtectedRoute>
-                <RoleGuard roles={[ROLES.EMPLOYEE]}>
-                  <EmployeeDashboardPage />
+                <RoleGuard roles={[ROLES.VOLUNTEER]}>
+                  <VolunteerDashboardPage />
                 </RoleGuard>
               </ProtectedRoute>
             }
           />
           <Route
-            path={ROUTES.EMPLOYEE_BOOKINGS}
+            path={ROUTES.VOLUNTEER_BOOKINGS}
             element={
               <ProtectedRoute>
-                <RoleGuard roles={[ROLES.EMPLOYEE]}>
-                  <EmployeeBookingsPage />
+                <RoleGuard roles={[ROLES.VOLUNTEER]}>
+                  <VolunteerBookingsPage />
                 </RoleGuard>
               </ProtectedRoute>
             }
           />
           <Route
-            path={ROUTES.EMPLOYEE_BOOKING_DETAILS}
+            path={ROUTES.VOLUNTEER_BOOKING_DETAILS}
             element={
               <ProtectedRoute>
-                <RoleGuard roles={[ROLES.EMPLOYEE]}>
-                  <EmployeeBookingDetailsPage />
+                <RoleGuard roles={[ROLES.VOLUNTEER]}>
+                  <VolunteerBookingDetailsPage />
                 </RoleGuard>
               </ProtectedRoute>
             }
           />
           <Route
-            path={ROUTES.EMPLOYEE_ATTENDANCE}
+            path={ROUTES.VOLUNTEER_ATTENDANCE}
             element={
               <ProtectedRoute>
-                <RoleGuard roles={[ROLES.EMPLOYEE]}>
-                  <EmployeeAttendancePage />
+                <RoleGuard roles={[ROLES.VOLUNTEER]}>
+                  <VolunteerAttendancePage />
                 </RoleGuard>
               </ProtectedRoute>
             }
           />
           <Route
-            path={ROUTES.EMPLOYEE_WORKLOGS}
+            path={ROUTES.VOLUNTEER_WORKLOGS}
             element={
               <ProtectedRoute>
-                <RoleGuard roles={[ROLES.EMPLOYEE]}>
-                  <EmployeeWorkLogsPage />
+                <RoleGuard roles={[ROLES.VOLUNTEER]}>
+                  <VolunteerWorkLogsPage />
                 </RoleGuard>
               </ProtectedRoute>
             }
@@ -321,7 +304,7 @@ const AppRouter = () => {
             path={ROUTES.REPORTS}
             element={
               <ProtectedRoute>
-                <RoleGuard roles={[ROLES.ADMIN, ROLES.COMPANY]}>
+                <RoleGuard roles={[ROLES.ADMIN]}>
                   <ReportsCenterPage />
                 </RoleGuard>
               </ProtectedRoute>
@@ -358,11 +341,11 @@ const AppRouter = () => {
             }
           />
           <Route
-            path={ROUTES.ADMIN_COMPANIES}
+            path={ROUTES.ADMIN_VOLUNTEERS}
             element={
               <ProtectedRoute>
                 <RoleGuard roles={[ROLES.ADMIN]}>
-                  <CompaniesPage />
+                  <VolunteersPage />
                 </RoleGuard>
               </ProtectedRoute>
             }
@@ -373,36 +356,6 @@ const AppRouter = () => {
               <ProtectedRoute>
                 <RoleGuard roles={[ROLES.ADMIN]}>
                   <AdminBookingsPage />
-                </RoleGuard>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path={ROUTES.ADMIN_ADD_COMPANY}
-            element={
-              <ProtectedRoute>
-                <RoleGuard roles={[ROLES.ADMIN]}>
-                  <CompanyFormPage />
-                </RoleGuard>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path={ROUTES.ADMIN_EDIT_COMPANY}
-            element={
-              <ProtectedRoute>
-                <RoleGuard roles={[ROLES.ADMIN]}>
-                  <CompanyFormPage />
-                </RoleGuard>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path={ROUTES.ADMIN_COMPANY_DETAILS}
-            element={
-              <ProtectedRoute>
-                <RoleGuard roles={[ROLES.ADMIN]}>
-                  <CompanyDetailsPage />
                 </RoleGuard>
               </ProtectedRoute>
             }
@@ -423,6 +376,26 @@ const AppRouter = () => {
               <ProtectedRoute>
                 <RoleGuard roles={[ROLES.ADMIN]}>
                   <SubCategoriesPage />
+                </RoleGuard>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path={ROUTES.ADMIN_SERVICES}
+            element={
+              <ProtectedRoute>
+                <RoleGuard roles={[ROLES.ADMIN]}>
+                  <AdminServicesPage />
+                </RoleGuard>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path={ROUTES.ADMIN_PACKAGES}
+            element={
+              <ProtectedRoute>
+                <RoleGuard roles={[ROLES.ADMIN]}>
+                  <AdminPackagesPage />
                 </RoleGuard>
               </ProtectedRoute>
             }
@@ -453,118 +426,6 @@ const AppRouter = () => {
               <ProtectedRoute>
                 <RoleGuard roles={[ROLES.ADMIN]}>
                   <AdminSettingsPage />
-                </RoleGuard>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Company Portal Only Routes */}
-          <Route
-            path={ROUTES.COMPANY_DASHBOARD}
-            element={
-              <ProtectedRoute>
-                <RoleGuard roles={[ROLES.COMPANY]}>
-                  <CompanyDashboardPage />
-                </RoleGuard>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path={ROUTES.COMPANY_ANALYTICS}
-            element={
-              <ProtectedRoute>
-                <RoleGuard roles={[ROLES.COMPANY]}>
-                  <CompanyAnalyticsPage />
-                </RoleGuard>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path={ROUTES.COMPANY_BOOKINGS}
-            element={
-              <ProtectedRoute>
-                <RoleGuard roles={[ROLES.COMPANY]}>
-                  <CompanyBookingDashboardPage />
-                </RoleGuard>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path={ROUTES.COMPANY_PROFILE}
-            element={
-              <ProtectedRoute>
-                <RoleGuard roles={[ROLES.COMPANY]}>
-                  <CompanyProfilePage />
-                </RoleGuard>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path={ROUTES.COMPANY_SERVICES}
-            element={
-              <ProtectedRoute>
-                <RoleGuard roles={[ROLES.COMPANY]}>
-                  <CompanyServicesPage />
-                </RoleGuard>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path={ROUTES.COMPANY_ADD_SERVICE}
-            element={
-              <ProtectedRoute>
-                <RoleGuard roles={[ROLES.COMPANY]}>
-                  <CompanyServiceFormPage />
-                </RoleGuard>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path={ROUTES.COMPANY_EDIT_SERVICE}
-            element={
-              <ProtectedRoute>
-                <RoleGuard roles={[ROLES.COMPANY]}>
-                  <CompanyServiceFormPage />
-                </RoleGuard>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path={ROUTES.COMPANY_SERVICE_DETAILS}
-            element={
-              <ProtectedRoute>
-                <RoleGuard roles={[ROLES.COMPANY]}>
-                  <CompanyServiceDetailsPage />
-                </RoleGuard>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path={ROUTES.COMPANY_EMPLOYEES}
-            element={
-              <ProtectedRoute>
-                <RoleGuard roles={[ROLES.COMPANY]}>
-                  <CompanyEmployeesPage />
-                </RoleGuard>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path={ROUTES.COMPANY_GALLERY}
-            element={
-              <ProtectedRoute>
-                <RoleGuard roles={[ROLES.COMPANY]}>
-                  <CompanyGalleryPage />
-                </RoleGuard>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path={ROUTES.COMPANY_PACKAGES}
-            element={
-              <ProtectedRoute>
-                <RoleGuard roles={[ROLES.COMPANY]}>
-                  <CompanyPackagesPage />
                 </RoleGuard>
               </ProtectedRoute>
             }

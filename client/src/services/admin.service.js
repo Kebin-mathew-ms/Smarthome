@@ -6,27 +6,72 @@ export const adminService = {
     return await api.get('/admin/dashboard');
   },
 
-  // Companies Management
-  getCompanies: async (params) => {
-    return await api.get('/admin/companies', { params });
+  // Volunteers Management
+  getVolunteers: async (params) => {
+    return await api.get('/admin/volunteers', { params });
   },
-  getCompanyById: async (id) => {
-    return await api.get(`/admin/companies/${id}`);
+  getVolunteerById: async (id) => {
+    return await api.get(`/admin/volunteers/${id}`);
   },
-  createCompany: async (companyData) => {
-    return await api.post('/admin/companies', companyData);
+  createVolunteer: async (volunteerData) => {
+    return await api.post('/admin/volunteers', volunteerData);
   },
-  updateCompany: async (id, companyData) => {
-    return await api.put(`/admin/companies/${id}`, companyData);
+  updateVolunteer: async (id, volunteerData) => {
+    return await api.put(`/admin/volunteers/${id}`, volunteerData);
   },
-  updateCompanyStatus: async (companyId, status) => {
-    return await api.patch('/admin/companies/status', { companyId, status });
+  updateVolunteerStatus: async (volunteerId, status) => {
+    return await api.patch('/admin/volunteers/status', { volunteerId, status });
   },
-  resetCompanyPassword: async (companyId) => {
-    return await api.patch('/admin/companies/reset-password', { companyId });
+  deleteVolunteer: async (id) => {
+    return await api.delete(`/admin/volunteers/${id}`);
   },
-  deleteCompany: async (id) => {
-    return await api.delete(`/admin/companies/${id}`);
+
+  // Services Management
+  getServices: async (params) => {
+    return await api.get('/admin/services', { params });
+  },
+  getServiceById: async (id) => {
+    return await api.get(`/admin/services/${id}`);
+  },
+  createService: async (serviceData) => {
+    return await api.post('/admin/services', serviceData);
+  },
+  updateService: async (id, serviceData) => {
+    return await api.put(`/admin/services/${id}`, serviceData);
+  },
+  updateServiceStatus: async (serviceId, status) => {
+    return await api.patch('/admin/services/status', { serviceId, status });
+  },
+  deleteService: async (id) => {
+    return await api.delete(`/admin/services/${id}`);
+  },
+
+  // Packages Management
+  getPackages: async () => {
+    return await api.get('/admin/packages');
+  },
+  getPackagesByServiceId: async (serviceId) => {
+    return await api.get(`/admin/services/${serviceId}/packages`);
+  },
+  createPackage: async (packageData) => {
+    return await api.post('/admin/packages', packageData);
+  },
+  updatePackage: async (id, packageData) => {
+    return await api.put(`/admin/packages/${id}`, packageData);
+  },
+  deletePackage: async (id) => {
+    return await api.delete(`/admin/packages/${id}`);
+  },
+
+  // Bookings Actions
+  getBookings: async (params) => {
+    return await api.get('/admin/bookings', { params });
+  },
+  assignVolunteers: async (bookingId, volunteerIds) => {
+    return await api.patch('/admin/bookings/assign', { bookingId, volunteerIds });
+  },
+  updateBookingStatus: async (bookingId, status, remarks) => {
+    return await api.patch('/admin/bookings/status', { bookingId, status, remarks });
   },
 
   // Categories & Subcategories Management

@@ -1,16 +1,16 @@
 const { query } = require('../config/db');
 
 class ServiceRepository {
-  async findById(id, companyId) {
+  async findById(id) {
     const sql = `
       SELECT s.*, c.category_name, sub.subcategory_name
       FROM services s
       JOIN service_categories c ON s.category_id = c.id
       JOIN service_subcategories sub ON s.subcategory_id = sub.id
-      WHERE s.id = ? AND s.company_id = ? AND s.deleted_at IS NULL
+      WHERE s.id = ? AND s.deleted_at IS NULL
       LIMIT 1
     `;
-    const rows = await query(sql, [id, companyId]);
+    const rows = await query(sql, [id]);
     if (!rows[0]) return null;
 
     const images = await this.getImages(id);
@@ -23,63 +23,63 @@ class ServiceRepository {
     };
   }
 
-  async findByName(serviceName, companyId) {
+  async findByName(serviceName) {
     const sql = `
       SELECT * FROM services
-      WHERE service_name = ? AND company_id = ? AND deleted_at IS NULL
+      WHERE service_name = ? AND deleted_at IS NULL
       LIMIT 1
     `;
-    const rows = await query(sql, [serviceName, companyId]);
+    const rows = await query(sql, [serviceName]);
     return rows[0] || null;
   }
 
-  async create({ company_id, category_id, subcategory_id, service_name, short_description, full_description, starting_price, estimated_duration, service_type = 'on_site', thumbnail = null, status = 'active' }) {
+  async create({ category_id, subcategory_id, service_name, short_description, full_description, starting_price, estimated_duration, service_type = 'on_site', thumbnail = null, status = 'active' }) {
     const sql = `
       INSERT INTO services (company_id, category_id, subcategory_id, service_name, short_description, full_description, starting_price, estimated_duration, service_type, thumbnail, status)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const result = await query(sql, [
-      company_id, category_id, subcategory_id, service_name, short_description, full_description, starting_price, estimated_duration, service_type, thumbnail, status
+      category_id, subcategory_id, service_name, short_description, full_description, starting_price, estimated_duration, service_type, thumbnail, status
     ]);
     return result.insertId;
   }
 
-  async update(id, companyId, { category_id, subcategory_id, service_name, short_description, full_description, starting_price, estimated_duration, service_type, thumbnail, status }) {
+  async update(id, { category_id, subcategory_id, service_name, short_description, full_description, starting_price, estimated_duration, service_type, thumbnail, status }) {
     const sql = `
       UPDATE services
       SET category_id = ?, subcategory_id = ?, service_name = ?, short_description = ?, full_description = ?, starting_price = ?, estimated_duration = ?, service_type = ?, thumbnail = COALESCE(?, thumbnail), status = ?
-      WHERE id = ? AND company_id = ? AND deleted_at IS NULL
+      WHERE id = ? AND deleted_at IS NULL
     `;
     await query(sql, [
-      category_id, subcategory_id, service_name, short_description, full_description, starting_price, estimated_duration, service_type, thumbnail, status, id, companyId
+      category_id, subcategory_id, service_name, short_description, full_description, starting_price, estimated_duration, service_type, thumbnail, status, id
     ]);
-    return this.findById(id, companyId);
+    return this.findById(id);
   }
 
-  async updateStatus(id, companyId, status) {
+  async updateStatus(id, status) {
     const sql = `
       UPDATE services
       SET status = ?
-      WHERE id = ? AND company_id = ? AND deleted_at IS NULL
+      WHERE id = ? AND deleted_at IS NULL
     `;
-    await query(sql, [status, id, companyId]);
-    return this.findById(id, companyId);
+    await query(sql, [status, id]);
+    return this.findById(id);
   }
 
-  async softDelete(id, companyId) {
+  async softDelete(id) {
     const sql = `
       UPDATE services
       SET deleted_at = NOW(), status = 'inactive'
-      WHERE id = ? AND company_id = ? AND deleted_at IS NULL
+      WHERE id = ? AND deleted_at IS NULL
     `;
-    const result = await query(sql, [id, companyId]);
+    const result = await query(sql, [id]);
     return result.affectedRows > 0;
   }
 
-  async findAll(companyId, { page = 1, limit = 10, category_id, subcategory_id, status, search, minPrice, maxPrice }) {
+  async findAll({ page = 1, limit = 10, category_id, subcategory_id, status, search, minPrice, maxPrice }) {
     const offset = (page - 1) * limit;
-    const params = [companyId];
-    let whereClause = 'WHERE s.company_id = ? AND s.deleted_at IS NULL';
+    const params = [];
+    let whereClause = 'WHERE s.deleted_at IS NULL';
 
     if (category_id) {
       whereClause += ' AND s.category_id = ?';
@@ -164,16 +164,16 @@ class ServiceRepository {
     return await query(sql, [serviceId]);
   }
 
-  async countByCompanyId(companyId) {
+  async countAll() {
     const sql = `
       SELECT 
         COUNT(*) as total,
         SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active,
         SUM(CASE WHEN status = 'inactive' THEN 1 ELSE 0 END) as inactive
       FROM services
-      WHERE company_id = ? AND deleted_at IS NULL
+      WHERE deleted_at IS NULL
     `;
-    const rows = await query(sql, [companyId]);
+    const rows = await query(sql);
     return rows[0] || { total: 0, active: 0, inactive: 0 };
   }
 }

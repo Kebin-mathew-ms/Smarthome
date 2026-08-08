@@ -7,26 +7,29 @@ describe('Authentication API Suite', () => {
       const res = await request(app)
         .post('/api/register')
         .send({
-          full_name: 'Test Customer Automated',
+          first_name: 'Test',
+          last_name: 'Customer Automated',
           email: `test_${Date.now()}@example.com`,
           password: 'Password123!',
           phone: `+1${Math.floor(1000000000 + Math.random() * 9000000000)}`,
-          role: 'Customer'
+          role: 'User'
         });
       expect(res.statusCode).toEqual(201);
       expect(res.body.success).toEqual(true);
-      expect(res.body.data).toHaveProperty('id');
+      expect(res.body.data).toHaveProperty('user');
+      expect(res.body.data.user).toHaveProperty('id');
     });
 
     it('should fail registration with invalid email format', async () => {
       const res = await request(app)
         .post('/api/register')
         .send({
-          full_name: 'Test Customer',
+          first_name: 'Test',
+          last_name: 'Customer',
           email: 'invalid-email-format',
           password: 'Password123!',
           phone: '+19876543210',
-          role: 'Customer'
+          role: 'User'
         });
       expect(res.statusCode).toEqual(400);
       expect(res.body.success).toEqual(false);

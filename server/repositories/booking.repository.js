@@ -8,7 +8,7 @@ class BookingRepository {
              s.service_name, s.starting_price, sp.package_name, sp.price as package_price
       FROM bookings b
       JOIN users u ON b.user_id = u.id
-      JOIN companies c ON b.company_id = c.id
+      LEFT JOIN companies c ON b.company_id = c.id
       JOIN services s ON b.service_id = s.id
       LEFT JOIN service_packages sp ON b.package_id = sp.id
       WHERE b.id = ?
@@ -27,15 +27,16 @@ class BookingRepository {
     const historyRows = await query(`SELECT * FROM booking_status_history WHERE booking_id = ? ORDER BY created_at ASC`, [id]);
     booking.history = historyRows;
 
-    // Assigned Employees
+    // Assigned Volunteers
     const empRows = await query(
-      `SELECT e.id, e.employee_name, e.designation, e.phone, e.profile_photo, be.assigned_at
-       FROM booking_employees be
-       JOIN company_employees e ON be.employee_id = e.id
+      `SELECT e.id, e.volunteer_name, e.designation, e.phone, e.profile_photo, be.assigned_at
+       FROM booking_volunteers be
+       JOIN volunteers e ON be.volunteer_id = e.id
        WHERE be.booking_id = ?`,
       [id]
     );
-    booking.employees = empRows;
+    booking.volunteers = empRows;
+    booking.employees = empRows; // Compatibility fallback
 
     return booking;
   }
@@ -57,7 +58,7 @@ class BookingRepository {
     const dataSql = `
       SELECT b.*, c.company_name, c.logo as company_logo, s.service_name, sp.package_name
       FROM bookings b
-      JOIN companies c ON b.company_id = c.id
+      LEFT JOIN companies c ON b.company_id = c.id
       JOIN services s ON b.service_id = s.id
       LEFT JOIN service_packages sp ON b.package_id = sp.id
       ${whereClause}
@@ -77,15 +78,19 @@ class BookingRepository {
   }
 
   async findCompanyBookings(companyId, { status, search, page = 1, limit = 10 }) {
+    // Falls back to Admin listing of all bookings for compatibility
+    return this.findAllBookings({ status, search, page, limit });
+  }
+
+  async findAllBookings({ status, search, page = 1, limit = 10 }) {
     const offset = (page - 1) * limit;
-    const params = [companyId];
-    let whereClause = 'WHERE b.company_id = ?';
+    const params = [];
+    let whereClause = 'WHERE 1=1';
 
     if (status) {
       whereClause += ' AND b.booking_status = ?';
       params.push(status);
     }
-
     if (search) {
       whereClause += ' AND (b.booking_number LIKE ? OR u.full_name LIKE ? OR s.service_name LIKE ?)';
       const term = `%${search}%`;
@@ -103,62 +108,9 @@ class BookingRepository {
     const total = countRows[0].total;
 
     const dataSql = `
-      SELECT b.*, u.full_name as customer_name, u.phone as customer_phone, s.service_name, sp.package_name
+      SELECT b.*, u.full_name as customer_name, s.service_name
       FROM bookings b
       JOIN users u ON b.user_id = u.id
-      JOIN services s ON b.service_id = s.id
-      LEFT JOIN service_packages sp ON b.package_id = sp.id
-      ${whereClause}
-      ORDER BY b.created_at DESC
-      LIMIT ? OFFSET ?
-    `;
-    params.push(Number(limit), Number(offset));
-    const rows = await query(dataSql, params);
-
-    return {
-      items: rows,
-      total,
-      page: Number(page),
-      limit: Number(limit),
-      totalPages: Math.ceil(total / limit)
-    };
-  }
-
-  async findAllBookings({ status, company_id, search, page = 1, limit = 10 }) {
-    const offset = (page - 1) * limit;
-    const params = [];
-    let whereClause = 'WHERE 1=1';
-
-    if (company_id) {
-      whereClause += ' AND b.company_id = ?';
-      params.push(company_id);
-    }
-    if (status) {
-      whereClause += ' AND b.booking_status = ?';
-      params.push(status);
-    }
-    if (search) {
-      whereClause += ' AND (b.booking_number LIKE ? OR u.full_name LIKE ? OR c.company_name LIKE ? OR s.service_name LIKE ?)';
-      const term = `%${search}%`;
-      params.push(term, term, term, term);
-    }
-
-    const countSql = `
-      SELECT COUNT(*) as total
-      FROM bookings b
-      JOIN users u ON b.user_id = u.id
-      JOIN companies c ON b.company_id = c.id
-      JOIN services s ON b.service_id = s.id
-      ${whereClause}
-    `;
-    const countRows = await query(countSql, params);
-    const total = countRows[0].total;
-
-    const dataSql = `
-      SELECT b.*, u.full_name as customer_name, c.company_name, s.service_name
-      FROM bookings b
-      JOIN users u ON b.user_id = u.id
-      JOIN companies c ON b.company_id = c.id
       JOIN services s ON b.service_id = s.id
       ${whereClause}
       ORDER BY b.created_at DESC
@@ -184,7 +136,6 @@ class BookingRepository {
       const {
         booking_number,
         user_id,
-        company_id,
         service_id,
         package_id,
         address_id,
@@ -202,8 +153,8 @@ class BookingRepository {
 
       const [res] = await conn.execute(
         `INSERT INTO bookings (booking_number, user_id, company_id, service_id, package_id, address_id, scheduled_date, scheduled_time, booking_status, payment_status, payment_method, special_instructions, subtotal, tax_amount, discount_amount, total_amount)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [booking_number, user_id, company_id, service_id, package_id || null, address_id, scheduled_date, scheduled_time, booking_status, payment_status, payment_method, special_instructions || null, subtotal, tax_amount, discount_amount, total_amount]
+         VALUES (?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [booking_number, user_id, service_id, package_id || null, address_id, scheduled_date, scheduled_time, booking_status, payment_status, payment_method, special_instructions || null, subtotal, tax_amount, discount_amount, total_amount]
       );
       const bookingId = res.insertId;
 
@@ -255,13 +206,18 @@ class BookingRepository {
     return this.findById(bookingId);
   }
 
-  async assignEmployees(bookingId, employeeIds = []) {
-    await query(`DELETE FROM booking_employees WHERE booking_id = ?`, [bookingId]);
-    for (const empId of employeeIds) {
-      await query(`INSERT INTO booking_employees (booking_id, employee_id) VALUES (?, ?)`, [bookingId, empId]);
+  async assignVolunteers(bookingId, volunteerIds = []) {
+    await query(`DELETE FROM booking_volunteers WHERE booking_id = ?`, [bookingId]);
+    for (const volId of volunteerIds) {
+      await query(`INSERT INTO booking_volunteers (booking_id, volunteer_id) VALUES (?, ?)`, [bookingId, volId]);
     }
-    await this.updateStatus(bookingId, 'Employee Assigned', `Assigned ${employeeIds.length} technician(s)`, 'Company');
+    // We map internally to 'Employee Assigned' status for DB consistency
+    await this.updateStatus(bookingId, 'Employee Assigned', `Assigned ${volunteerIds.length} volunteer(s)`, 'Admin');
     return this.findById(bookingId);
+  }
+
+  async assignEmployees(bookingId, employeeIds = []) {
+    return this.assignVolunteers(bookingId, employeeIds);
   }
 }
 

@@ -35,7 +35,7 @@ const registerValidation = [
     .withMessage('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'),
   body('role')
     .optional()
-    .isIn(['User', 'Company', 'Admin', 'Employee'])
+    .isIn(['User', 'Admin', 'Volunteer'])
     .withMessage('Invalid role specified')
 ];
 

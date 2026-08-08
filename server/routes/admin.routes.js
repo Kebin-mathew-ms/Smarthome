@@ -6,13 +6,14 @@ const validate = require('../middlewares/validate.middleware');
 const upload = require('../middlewares/upload.middleware');
 
 const adminDashboardController = require('../controllers/adminDashboard.controller');
-const adminCompanyController = require('../controllers/adminCompany.controller');
 const serviceCategoryController = require('../controllers/serviceCategory.controller');
 const serviceSubcategoryController = require('../controllers/serviceSubcategory.controller');
 const adminUserController = require('../controllers/adminUser.controller');
 const auditLogController = require('../controllers/auditLog.controller');
+const volunteerController = require('../controllers/volunteer.controller');
+const adminServiceController = require('../controllers/adminService.controller');
+const adminPackageController = require('../controllers/adminPackage.controller');
 
-const { createCompanyValidation, updateCompanyValidation } = require('../validators/company.validator');
 const { createCategoryValidation, updateCategoryValidation } = require('../validators/serviceCategory.validator');
 const { createSubcategoryValidation, updateSubcategoryValidation } = require('../validators/subCategory.validator');
 const { updateUserStatusValidation } = require('../validators/adminUser.validator');
@@ -26,27 +27,49 @@ router.use(authenticate, authorize('Admin'));
 router.get('/dashboard', adminDashboardController.getDashboardStats);
 
 // -------------------------------------------------------------
-// Company Management
+// Volunteer Management
 // -------------------------------------------------------------
-router.get('/companies', adminCompanyController.getCompanies);
-router.get('/companies/:id', adminCompanyController.getCompanyById);
+router.get('/volunteers', volunteerController.getVolunteers);
+router.get('/volunteers/:id', volunteerController.getVolunteerById);
 router.post(
-  '/companies',
-  upload.single('logo'),
-  createCompanyValidation,
-  validate,
-  adminCompanyController.createCompany
+  '/volunteers',
+  upload.single('profile_photo'),
+  volunteerController.createVolunteer
 );
 router.put(
-  '/companies/:id',
-  upload.single('logo'),
-  updateCompanyValidation,
-  validate,
-  adminCompanyController.updateCompany
+  '/volunteers/:id',
+  upload.single('profile_photo'),
+  volunteerController.updateVolunteer
 );
-router.patch('/companies/status', adminCompanyController.updateCompanyStatus);
-router.patch('/companies/reset-password', adminCompanyController.resetCompanyPassword);
-router.delete('/companies/:id', adminCompanyController.deleteCompany);
+router.patch('/volunteers/status', volunteerController.updateVolunteerStatus);
+router.delete('/volunteers/:id', volunteerController.deleteVolunteer);
+
+// -------------------------------------------------------------
+// Service Catalog Management
+// -------------------------------------------------------------
+router.get('/services', adminServiceController.getServices);
+router.get('/services/:id', adminServiceController.getServiceById);
+router.post(
+  '/services',
+  upload.single('thumbnail'),
+  adminServiceController.createService
+);
+router.put(
+  '/services/:id',
+  upload.single('thumbnail'),
+  adminServiceController.updateService
+);
+router.patch('/services/status', adminServiceController.updateServiceStatus);
+router.delete('/services/:id', adminServiceController.deleteService);
+
+// -------------------------------------------------------------
+// Package Management
+// -------------------------------------------------------------
+router.get('/packages', adminPackageController.getPackages);
+router.get('/services/:serviceId/packages', adminPackageController.getPackagesByServiceId);
+router.post('/packages', adminPackageController.createPackage);
+router.put('/packages/:id', adminPackageController.updatePackage);
+router.delete('/packages/:id', adminPackageController.deletePackage);
 
 // -------------------------------------------------------------
 // Service Category Management

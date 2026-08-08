@@ -14,11 +14,10 @@ class AdminBookingService {
     const result = await bookingRepository.findAllBookings({ ...query, limit: 10000 });
     const items = result.items;
 
-    const headers = ['Booking Number', 'Customer Name', 'Company Name', 'Service Name', 'Scheduled Date', 'Scheduled Time', 'Status', 'Payment Status', 'Total Amount', 'Created At'];
+    const headers = ['Booking Number', 'Customer Name', 'Service Name', 'Scheduled Date', 'Scheduled Time', 'Status', 'Payment Status', 'Total Amount', 'Created At'];
     const rows = items.map(b => [
       b.booking_number,
       `"${b.customer_name || ''}"`,
-      `"${b.company_name || ''}"`,
       `"${b.service_name || ''}"`,
       b.scheduled_date,
       b.scheduled_time,
@@ -29,6 +28,16 @@ class AdminBookingService {
     ]);
 
     return [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  }
+
+  async assignVolunteers(bookingId, volunteerIds) {
+    const updated = await bookingRepository.assignVolunteers(bookingId, volunteerIds);
+    return new Booking(updated);
+  }
+
+  async updateBookingStatus(bookingId, status, remarks = null) {
+    const updated = await bookingRepository.updateStatus(bookingId, status, remarks, 'Admin');
+    return new Booking(updated);
   }
 }
 

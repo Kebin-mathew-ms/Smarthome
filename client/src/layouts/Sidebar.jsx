@@ -1,7 +1,7 @@
 import React from 'react';
 import { Layout, Menu } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Building2, Layers, ShieldCheck, Users, Activity, Settings, User, Wrench, Briefcase, Image as ImageIcon, Heart, UserCheck, Clock, Home, MapPin, Calendar, Star, Ticket, Gift, TrendingUp, BarChart2, Server, Megaphone, CheckSquare, FileText } from 'lucide-react';
+import { LayoutDashboard, Layers, ShieldCheck, Users, Activity, Settings, User, Wrench, Briefcase, Heart, UserCheck, Clock, Home, MapPin, Calendar, Star, Ticket, Gift, TrendingUp, BarChart2, Server, Megaphone, CheckSquare, FileText } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../hooks/useTheme';
 import { ROUTES } from '../constants/routes';
@@ -20,11 +20,13 @@ const Sidebar = ({ collapsed, onCollapse }) => {
   if (user?.role === ROLES.ADMIN) {
     menuItems = [
       { key: ROUTES.ADMIN_DASHBOARD, icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
-      { key: ROUTES.ANALYTICS, icon: <TrendingUp size={18} />, label: 'Business Intelligence' },
+      { key: ROUTES.ANALYTICS, icon: <TrendingUp size={18} />, label: 'Analytics' },
       { key: ROUTES.REPORTS, icon: <BarChart2 size={18} />, label: 'Reports & Exports' },
-      { key: ROUTES.SYSTEM_HEALTH, icon: <Server size={18} />, label: 'System Health Telemetry' },
+      { key: ROUTES.SYSTEM_HEALTH, icon: <Server size={18} />, label: 'System Health' },
       { key: ROUTES.ANNOUNCEMENTS, icon: <Megaphone size={18} />, label: 'Announcements' },
-      { key: ROUTES.ADMIN_COMPANIES, icon: <Building2 size={18} />, label: 'Companies' },
+      { key: ROUTES.ADMIN_VOLUNTEERS, icon: <Users size={18} />, label: 'Staff Volunteers' },
+      { key: ROUTES.ADMIN_SERVICES, icon: <Briefcase size={18} />, label: 'Services Catalog' },
+      { key: ROUTES.ADMIN_PACKAGES, icon: <Layers size={18} />, label: 'Service Packages' },
       { key: ROUTES.ADMIN_BOOKINGS, icon: <Calendar size={18} />, label: 'Platform Bookings' },
       { key: ROUTES.COMPLAINTS, icon: <Ticket size={18} />, label: 'Support Complaints' },
       { key: ROUTES.ADMIN_CATEGORIES, icon: <Layers size={18} />, label: 'Service Categories' },
@@ -34,36 +36,19 @@ const Sidebar = ({ collapsed, onCollapse }) => {
       { key: ROUTES.ADMIN_SETTINGS, icon: <Settings size={18} />, label: 'Settings' },
       { key: ROUTES.PROFILE, icon: <User size={18} />, label: 'My Profile' }
     ];
-  } else if (user?.role === ROLES.COMPANY) {
+  } else if (user?.role === ROLES.VOLUNTEER) {
+    // Volunteer Menu
     menuItems = [
-      { key: ROUTES.COMPANY_DASHBOARD, icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
-      { key: ROUTES.COMPANY_ANALYTICS, icon: <TrendingUp size={18} />, label: 'Provider Performance' },
-      { key: ROUTES.REPORTS, icon: <BarChart2 size={18} />, label: 'Company Reports' },
-      { key: ROUTES.COMPANY_BOOKINGS, icon: <Calendar size={18} />, label: 'Booking Dispatch' },
-      { key: ROUTES.COMPLAINTS, icon: <Ticket size={18} />, label: 'Support Tickets' },
-      { key: ROUTES.REVIEWS, icon: <Star size={18} />, label: 'Customer Reviews' },
-      { key: ROUTES.WARRANTY, icon: <ShieldCheck size={18} />, label: 'Warranties Issued' },
-      { key: ROUTES.COMPANY_SERVICES, icon: <Briefcase size={18} />, label: 'Services Catalog' },
-      { key: ROUTES.COMPANY_PACKAGES, icon: <Layers size={18} />, label: 'Service Packages' },
-      { key: ROUTES.COMPANY_EMPLOYEES, icon: <Users size={18} />, label: 'Staff & Technicians' },
-      { key: ROUTES.COMPANY_GALLERY, icon: <ImageIcon size={18} />, label: 'Portfolio Gallery' },
-      { key: ROUTES.COMPANY_PROFILE, icon: <Building2 size={18} />, label: 'Company Profile' },
-      { key: ROUTES.PROFILE, icon: <User size={18} />, label: 'User Account' }
-    ];
-  } else if (user?.role === ROLES.EMPLOYEE) {
-    // Technician Menu
-    menuItems = [
-      { key: ROUTES.EMPLOYEE_DASHBOARD, icon: <LayoutDashboard size={18} />, label: 'Field Dashboard' },
-      { key: ROUTES.EMPLOYEE_BOOKINGS, icon: <Briefcase size={18} />, label: 'My Assigned Jobs' },
-      { key: ROUTES.EMPLOYEE_ATTENDANCE, icon: <CheckSquare size={18} />, label: 'Attendance History' },
-      { key: ROUTES.EMPLOYEE_WORKLOGS, icon: <FileText size={18} />, label: 'Work Logs' },
+      { key: ROUTES.VOLUNTEER_DASHBOARD, icon: <LayoutDashboard size={18} />, label: 'Volunteer Dashboard' },
+      { key: ROUTES.VOLUNTEER_BOOKINGS, icon: <Briefcase size={18} />, label: 'Assigned Work' },
+      { key: ROUTES.VOLUNTEER_ATTENDANCE, icon: <CheckSquare size={18} />, label: 'Attendance History' },
+      { key: ROUTES.VOLUNTEER_WORKLOGS, icon: <FileText size={18} />, label: 'Work Logs' },
       { key: ROUTES.PROFILE, icon: <User size={18} />, label: 'My Account' }
     ];
   } else {
     // Customer / Guest Menu
     menuItems = [
       { key: ROUTES.HOME, icon: <Home size={18} />, label: 'Home Marketplace' },
-      { key: ROUTES.COMPANIES, icon: <Building2 size={18} />, label: 'Browse Companies' },
       { key: ROUTES.BOOKINGS, icon: <Calendar size={18} />, label: 'My Bookings' },
       { key: ROUTES.ADDRESSES, icon: <MapPin size={18} />, label: 'Saved Addresses' },
       { key: ROUTES.REVIEWS, icon: <Star size={18} />, label: 'My Reviews' },
@@ -129,7 +114,7 @@ const Sidebar = ({ collapsed, onCollapse }) => {
               textOverflow: 'ellipsis'
             }}
           >
-            {user?.role === ROLES.EMPLOYEE ? 'Technician Portal' : user?.role === ROLES.COMPANY ? 'Provider Portal' : user?.role === ROLES.ADMIN ? 'HomeCare Admin' : 'Smart Home Care'}
+            {user?.role === ROLES.VOLUNTEER ? 'Volunteer Portal' : user?.role === ROLES.ADMIN ? 'HomeCare Admin' : 'Smart Home Care'}
           </span>
         )}
       </div>

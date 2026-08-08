@@ -22,6 +22,26 @@ class AdminBookingController {
       next(error);
     }
   }
+
+  async assignVolunteers(req, res, next) {
+    try {
+      const { bookingId, volunteerIds } = req.body;
+      const result = await adminBookingService.assignVolunteers(bookingId, volunteerIds);
+      return sendSuccess(res, 'Volunteers assigned successfully', result, HTTP_STATUS.OK);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async updateBookingStatus(req, res, next) {
+    try {
+      const { bookingId, status, remarks } = req.body;
+      const result = await adminBookingService.updateBookingStatus(bookingId, status, remarks);
+      return sendSuccess(res, `Booking status updated to ${status}`, result, HTTP_STATUS.OK);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new AdminBookingController();

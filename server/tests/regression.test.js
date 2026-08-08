@@ -5,7 +5,7 @@ const { query } = require('../config/db');
 describe('Full Platform SQA Regression Suite', () => {
   describe('1. API Response Contract Consistency', () => {
     it('should return standard JSON envelope format { success, message, data } on public endpoints', async () => {
-      const res = await request(app).get('/api/health');
+      const res = await request(app).get('/api/production/health');
       expect(res.statusCode).toEqual(200);
       expect(res.body).toHaveProperty('success');
       expect(res.body).toHaveProperty('message');
@@ -26,13 +26,8 @@ describe('Full Platform SQA Regression Suite', () => {
       expect(res.statusCode).toEqual(401);
     });
 
-    it('should reject unauthenticated request to /api/company/dashboard with 401', async () => {
-      const res = await request(app).get('/api/company/dashboard');
-      expect(res.statusCode).toEqual(401);
-    });
-
-    it('should reject unauthenticated request to /api/employee/dashboard with 401', async () => {
-      const res = await request(app).get('/api/employee/dashboard');
+    it('should reject unauthenticated request to /api/volunteer/dashboard with 401', async () => {
+      const res = await request(app).get('/api/volunteer/dashboard');
       expect(res.statusCode).toEqual(401);
     });
 
@@ -48,7 +43,7 @@ describe('Full Platform SQA Regression Suite', () => {
         'users',
         'companies',
         'services',
-        'company_employees',
+        'volunteers',
         'bookings',
         'payments',
         'invoices',
@@ -60,15 +55,15 @@ describe('Full Platform SQA Regression Suite', () => {
         'coupon_codes',
         'system_announcements',
         'activity_logs',
-        'employee_sessions',
-        'employee_checkins',
-        'employee_signatures',
-        'employee_daily_logs'
+        'volunteer_sessions',
+        'volunteer_checkins',
+        'volunteer_signatures',
+        'volunteer_daily_logs'
       ];
 
       for (const tbl of tables) {
         const rows = await query(`SHOW TABLES LIKE ?`, [tbl]);
-        expect(rows.length).toBeGreaterThanOrEqual(0); // Query executes without DB error
+        expect(rows.length).toBeGreaterThan(0);
       }
     });
   });

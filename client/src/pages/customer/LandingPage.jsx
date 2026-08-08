@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Row, Col, Card, Input, Typography, Button, Rate, Tag, Space, message } from 'antd';
-import { Search, Building2, Layers, Star, ShieldCheck, Wrench, ArrowRight, CheckCircle2, Award, Clock } from 'lucide-react';
+import { Search, Layers, Star, ShieldCheck, Wrench, ArrowRight, CheckCircle2, Award, Clock } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import Footer from '../../layouts/Footer';
 import SkeletonCard from '../../components/common/SkeletonCard';
@@ -35,9 +35,7 @@ const LandingPage = () => {
 
   const handleSearch = () => {
     if (searchTerm.trim()) {
-      navigate(`/companies?search=${encodeURIComponent(searchTerm.trim())}`);
-    } else {
-      navigate(ROUTES.COMPANIES);
+      navigate(`/search?search=${encodeURIComponent(searchTerm.trim())}`);
     }
   };
 
@@ -56,13 +54,13 @@ const LandingPage = () => {
       >
         <div style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center' }}>
           <Tag color="blue" style={{ fontSize: 13, padding: '4px 12px', borderRadius: 999, marginBottom: 16 }}>
-            Multi-Company Smart Home Care Marketplace
+            Direct Smart Home Care & Maintenance Platform
           </Tag>
           <Title level={1} style={{ color: '#ffffff', fontSize: 42, fontWeight: 800, margin: '0 0 16px', tracking: '-0.02em' }}>
-            Find Certified Service Companies for Every Home Care Need
+            Instant Home Services, Assigned Directly to Volunteers
           </Title>
           <Text style={{ color: '#94a3b8', fontSize: 18, display: 'block', marginBottom: 32 }}>
-            Browse top-rated companies, explore their complete service offerings, compare provider ratings, and request expert maintenance.
+            Browse categories, select the service package you need, and book. Our admins will coordinate a vetted staff volunteer to complete the job.
           </Text>
 
           <div style={{ background: '#ffffff', padding: 8, borderRadius: 16, boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', display: 'flex', gap: 8 }}>
@@ -70,14 +68,14 @@ const LandingPage = () => {
               size="large"
               variant="borderless"
               prefix={<Search size={20} style={{ color: '#94a3b8', marginRight: 8 }} />}
-              placeholder="Search companies, city, district or service categories..."
+              placeholder="Search home care services, plumbing, electrical..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               onPressEnter={handleSearch}
               style={{ fontSize: 16 }}
             />
             <Button type="primary" size="large" onClick={handleSearch} style={{ height: 48, padding: '0 32px', borderRadius: 12, fontWeight: 700 }}>
-              Search Providers
+              Search Services
             </Button>
           </div>
         </div>
@@ -88,7 +86,7 @@ const LandingPage = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
           <div>
             <Title level={3} style={{ margin: 0, fontWeight: 700 }}>Explore Service Categories</Title>
-            <Text type="secondary">Find specialized companies by trade</Text>
+            <Text type="secondary">Find specialized trades and choose your required service package</Text>
           </div>
           <Link to={ROUTES.CATEGORIES}>
             <Button type="link" style={{ fontWeight: 600, color: '#2563eb' }}>
@@ -103,70 +101,14 @@ const LandingPage = () => {
               <Card
                 hoverable
                 variant="borderless"
-                onClick={() => navigate(`/companies?category=${cat.id}`)}
+                onClick={() => navigate(`/search?category=${cat.id}`)}
                 styles={{ body: { padding: 24, textAlign: 'center' } }}
               >
                 <div style={{ width: 56, height: 56, borderRadius: 16, background: '#eff6ff', color: '#2563eb', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
                   <Layers size={28} />
                 </div>
                 <Title level={5} style={{ margin: '0 0 4px', fontWeight: 700 }}>{cat.category_name}</Title>
-                <Text type="secondary" style={{ fontSize: 13 }}>{cat.description || 'Professional provider companies'}</Text>
-              </Card>
-            </Col>
-          ))}
-        </Row>
-      </div>
-
-      {/* Featured Companies */}
-      <div style={{ marginBottom: 48 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-          <div>
-            <Title level={3} style={{ margin: 0, fontWeight: 700 }}>Featured Service Companies</Title>
-            <Text type="secondary">Top-rated certified service provider companies ready to assist you</Text>
-          </div>
-          <Link to={ROUTES.COMPANIES}>
-            <Button type="link" style={{ fontWeight: 600, color: '#2563eb' }}>
-              Browse All Companies <ArrowRight size={16} style={{ marginLeft: 4 }} />
-            </Button>
-          </Link>
-        </div>
-
-        <Row gutter={[20, 20]}>
-          {data?.featuredCompanies?.map(comp => (
-            <Col xs={24} sm={12} lg={8} key={comp.id}>
-              <Card
-                hoverable
-                variant="borderless"
-                onClick={() => navigate(`/companies/${comp.id}`)}
-                styles={{ body: { padding: 20 } }}
-              >
-                <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 16 }}>
-                  <div style={{ width: 52, height: 52, borderRadius: 12, background: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Building2 size={26} />
-                  </div>
-                  <div>
-                    <Title level={5} style={{ margin: 0, fontWeight: 700, color: '#0f172a' }}>
-                      {comp.company_name}
-                    </Title>
-                    <Text type="secondary" style={{ fontSize: 12 }}>{comp.city}, {comp.state}</Text>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderTop: '1px solid #f1f5f9', borderBottom: '1px solid #f1f5f9', marginBottom: 16 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <Star size={16} style={{ color: '#f59e0b', fill: '#f59e0b' }} />
-                    <strong style={{ fontSize: 14 }}>{Number(comp.average_rating).toFixed(1)}</strong>
-                    <Text type="secondary" style={{ fontSize: 12 }}>({comp.total_reviews} reviews)</Text>
-                  </div>
-
-                  {comp.emergency_service && (
-                    <Tag color="volcano" style={{ fontSize: 11 }}>24/7 Emergency</Tag>
-                  )}
-                </div>
-
-                <Button type="primary" block style={{ borderRadius: 8, fontWeight: 600 }}>
-                  View Company & Services
-                </Button>
+                <Text type="secondary" style={{ fontSize: 13 }}>{cat.description || 'Professional home service offerings'}</Text>
               </Card>
             </Col>
           ))}
@@ -177,7 +119,7 @@ const LandingPage = () => {
       <div style={{ marginBottom: 48 }}>
         <div style={{ marginBottom: 24 }}>
           <Title level={3} style={{ margin: 0, fontWeight: 700 }}>Popular Service Offerings</Title>
-          <Text type="secondary">Frequently requested home care services across companies</Text>
+          <Text type="secondary">Frequently requested home care services</Text>
         </div>
 
         <Row gutter={[20, 20]}>
@@ -196,7 +138,7 @@ const LandingPage = () => {
 
                 <Title level={5} style={{ margin: '0 0 8px', fontWeight: 700 }}>{serv.service_name}</Title>
                 <Text type="secondary" style={{ fontSize: 13, display: 'block', marginBottom: 16 }}>
-                  Provided by <strong>{serv.company_name}</strong> ({serv.city})
+                  {serv.short_description}
                 </Text>
 
                 <Button type="default" block style={{ borderRadius: 8 }}>
@@ -210,24 +152,24 @@ const LandingPage = () => {
 
       {/* Why Choose Us */}
       <Card variant="borderless" style={{ background: '#f8fafc', padding: 24, borderRadius: 16, marginBottom: 48 }}>
-        <Title level={3} style={{ textAlign: 'center', margin: '0 0 32px', fontWeight: 700 }}>Why Choose Smart Home Care Marketplace?</Title>
+        <Title level={3} style={{ textAlign: 'center', margin: '0 0 32px', fontWeight: 700 }}>Why Choose Smart Home Care?</Title>
         <Row gutter={[24, 24]}>
           <Col xs={24} md={8} style={{ textAlign: 'center' }}>
             <ShieldCheck size={36} style={{ color: '#2563eb', marginBottom: 12 }} />
-            <Title level={5} style={{ margin: '0 0 8px' }}>Verified Companies</Title>
-            <Text type="secondary">All service companies are thoroughly vetted, licensed and compliance checked.</Text>
+            <Title level={5} style={{ margin: '0 0 8px' }}>Direct Dispatching</Title>
+            <Text type="secondary">No middle companies. Platform Admins dispatch volunteers directly to your door.</Text>
           </Col>
 
           <Col xs={24} md={8} style={{ textAlign: 'center' }}>
             <Award size={36} style={{ color: '#16a34a', marginBottom: 12 }} />
-            <Title level={5} style={{ margin: '0 0 8px' }}>Transparent Ratings</Title>
-            <Text type="secondary">Real customer reviews and ratings help you compare top service providers in your city.</Text>
+            <Title level={5} style={{ margin: '0 0 8px' }}>Dedicated Volunteers</Title>
+            <Text type="secondary">Trained community helpers provide top quality repairs, cleaning and setup.</Text>
           </Col>
 
           <Col xs={24} md={8} style={{ textAlign: 'center' }}>
             <Clock size={36} style={{ color: '#9333ea', marginBottom: 12 }} />
-            <Title level={5} style={{ margin: '0 0 8px' }}>24/7 Availability</Title>
-            <Text type="secondary">Access emergency plumbing, electrical, and heating repair services anytime.</Text>
+            <Title level={5} style={{ margin: '0 0 8px' }}>Real-Time Tracker</Title>
+            <Text type="secondary">Monitor check-in status, progress, chat logs, and provide feedback directly.</Text>
           </Col>
         </Row>
       </Card>

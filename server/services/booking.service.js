@@ -13,7 +13,7 @@ const Booking = require('../models/booking.model');
 
 class BookingService {
   async createBooking(userId, ipAddress, data) {
-    const { company_id, service_id, package_id, address_id, scheduled_date, scheduled_time, payment_method, special_instructions } = data;
+    const { service_id, package_id, address_id, scheduled_date, scheduled_time, payment_method, special_instructions } = data;
 
     // Validate Scheduled Date is not in past
     const selectedDate = new Date(scheduled_date);
@@ -33,10 +33,10 @@ class BookingService {
       throw error;
     }
 
-    // Validate Service belongs to Company
-    const service = await serviceRepository.findById(service_id, company_id);
+    // Validate Service
+    const service = await serviceRepository.findById(service_id);
     if (!service || service.status !== 'active') {
-      const error = new Error('Service is inactive or unavailable for the selected company.');
+      const error = new Error('Service is inactive or unavailable.');
       error.statusCode = 400;
       throw error;
     }
@@ -46,7 +46,7 @@ class BookingService {
     let pkgName = null;
 
     if (package_id) {
-      const pkg = await servicePackageRepository.findById(package_id, company_id);
+      const pkg = await servicePackageRepository.findById(package_id);
       if (pkg && pkg.service_id === Number(service_id)) {
         price = Number(pkg.price);
         pkgName = pkg.package_name;
@@ -63,14 +63,13 @@ class BookingService {
     const bookingId = await bookingRepository.createBooking({
       booking_number,
       user_id: userId,
-      company_id,
       service_id,
       package_id: package_id || null,
       address_id,
       scheduled_date,
       scheduled_time,
       booking_status: 'Pending',
-      payment_status: payment_method === 'Cash' ? 'Pending' : 'Pending',
+      payment_status: 'Pending',
       payment_method: payment_method || 'Cash',
       special_instructions,
       subtotal,
@@ -102,7 +101,7 @@ class BookingService {
     // Notification Queue
     await notificationRepository.queueNotification({
       user_id: userId,
-      company_id,
+      company_id: null,
       booking_id: bookingId,
       notification_type: 'BOOKING_CREATED',
       title: `Booking Request ${booking_number}`,
@@ -152,17 +151,8 @@ class BookingService {
         return new Booking(booking);
       }
 
-      // 3. Company Owner / Representative
-      if (userRole === 'Company') {
-        const { query } = require('../config/db');
-        const rows = await query('SELECT company_id FROM company_users WHERE user_id = ?', [userId]);
-        if (rows.length > 0 && rows[0].company_id === booking.company_id) {
-          return new Booking(booking);
-        }
-      }
-
-      // 4. Field Technician / Employee
-      if (userRole === 'Employee') {
+      // 3. Volunteer Assigned to Booking
+      if (userRole === 'Volunteer' || userRole === 'Employee') {
         const { query } = require('../config/db');
         let targetEmail = userEmail;
         if (!targetEmail && userId) {
@@ -171,9 +161,13 @@ class BookingService {
         }
 
         if (targetEmail) {
-          const rows = await query('SELECT company_id FROM company_employees WHERE email = ?', [targetEmail]);
-          if (rows.length > 0 && rows[0].company_id === booking.company_id) {
-            return new Booking(booking);
+          const volRows = await query('SELECT id FROM volunteers WHERE email = ?', [targetEmail]);
+          if (volRows.length > 0) {
+            const volunteerId = volRows[0].id;
+            const assignmentRows = await query('SELECT id FROM booking_volunteers WHERE booking_id = ? AND volunteer_id = ?', [bookingId, volunteerId]);
+            if (assignmentRows.length > 0) {
+              return new Booking(booking);
+            }
           }
         }
       }

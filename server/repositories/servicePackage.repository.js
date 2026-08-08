@@ -1,15 +1,15 @@
 const { query } = require('../config/db');
 
 class ServicePackageRepository {
-  async findById(id, companyId) {
+  async findById(id) {
     const sql = `
       SELECT sp.*, s.service_name
       FROM service_packages sp
       JOIN services s ON sp.service_id = s.id
-      WHERE sp.id = ? AND s.company_id = ? AND sp.deleted_at IS NULL
+      WHERE sp.id = ? AND sp.deleted_at IS NULL
       LIMIT 1
     `;
-    const rows = await query(sql, [id, companyId]);
+    const rows = await query(sql, [id]);
     return rows[0] || null;
   }
 
@@ -22,8 +22,8 @@ class ServicePackageRepository {
     return result.insertId;
   }
 
-  async update(id, companyId, { package_name, package_description, price, estimated_duration, status }) {
-    const pkg = await this.findById(id, companyId);
+  async update(id, { package_name, package_description, price, estimated_duration, status }) {
+    const pkg = await this.findById(id);
     if (!pkg) return null;
 
     const sql = `
@@ -32,11 +32,11 @@ class ServicePackageRepository {
       WHERE id = ? AND deleted_at IS NULL
     `;
     await query(sql, [package_name, package_description, price, estimated_duration, status, id]);
-    return this.findById(id, companyId);
+    return this.findById(id);
   }
 
-  async softDelete(id, companyId) {
-    const pkg = await this.findById(id, companyId);
+  async softDelete(id) {
+    const pkg = await this.findById(id);
     if (!pkg) return false;
 
     const sql = `UPDATE service_packages SET deleted_at = NOW(), status = 'inactive' WHERE id = ?`;
@@ -53,15 +53,15 @@ class ServicePackageRepository {
     return await query(sql, [serviceId]);
   }
 
-  async findByCompanyId(companyId) {
+  async findAll() {
     const sql = `
       SELECT sp.*, s.service_name
       FROM service_packages sp
       JOIN services s ON sp.service_id = s.id
-      WHERE s.company_id = ? AND sp.deleted_at IS NULL AND s.deleted_at IS NULL
+      WHERE sp.deleted_at IS NULL AND s.deleted_at IS NULL
       ORDER BY sp.created_at DESC
     `;
-    return await query(sql, [companyId]);
+    return await query(sql);
   }
 }
 

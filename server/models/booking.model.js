@@ -1,5 +1,5 @@
 class Booking {
-  constructor({ id, booking_number, user_id, company_id, service_id, package_id, address_id, customer_name, company_name, service_name, package_name, scheduled_date, scheduled_time, estimated_end_time, booking_status, payment_status, payment_method, special_instructions, subtotal, tax_amount, discount_amount, total_amount, created_at, updated_at, cancelled_at, address = null, history = [], employees = [] }) {
+  constructor({ id, booking_number, user_id, company_id, service_id, package_id, address_id, customer_name, company_name, service_name, package_name, scheduled_date, scheduled_time, estimated_end_time, booking_status, payment_status, payment_method, special_instructions, subtotal, tax_amount, discount_amount, total_amount, created_at, updated_at, cancelled_at, address = null, history = [], volunteers = [] }) {
     this.id = id;
     this.booking_number = booking_number;
     this.user_id = user_id;
@@ -27,7 +27,7 @@ class Booking {
     this.cancelled_at = cancelled_at;
     this.address = address;
     this.history = history;
-    this.employees = employees;
+    this.volunteers = volunteers;
   }
 }
 
