@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Input, Space, message, Select, Button, Form, Tag, Modal } from 'antd';
+import { Card, Input, Space, message, Select, Button, Form, Tag, Modal } from 'antd';
 import { Plus, Search, Users, Edit2, Trash2 } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import AppTable from '../../components/common/AppTable';
