@@ -25,7 +25,7 @@ class AdminDashboardService {
     const recentUsers = await userRepository.getRecentUsers(5);
 
     const recentBookings = await query(`
-      SELECT b.*, u.full_name as customer_name, s.service_name
+      SELECT b.*, CONCAT(u.first_name, ' ', u.last_name) as customer_name, s.service_name
       FROM bookings b
       JOIN users u ON b.user_id = u.id
       JOIN services s ON b.service_id = s.id

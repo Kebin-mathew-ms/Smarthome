@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Row, Col, Card, Typography, Tag, Table, App as AntApp } from 'antd';
-import { Building2, CheckCircle2, Clock, XCircle, Users, Layers, ShieldCheck, UserPlus } from 'lucide-react';
+import { Users, Briefcase, CalendarCheck, Layers, ShieldCheck, UserPlus, CheckCircle2, Clock } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
-import MetricChart from '../../components/common/MetricChart';
 import SkeletonCard from '../../components/common/SkeletonCard';
 import StatusBadge from '../../components/common/StatusBadge';
 import { adminService } from '../../services/admin.service';
@@ -48,32 +47,25 @@ const AdminDashboardPage = () => {
   }
 
   const statCards = [
-    { title: 'Total Companies', value: stats?.totalCompanies || 0, icon: <Building2 size={22} />, color: '#2563eb', bg: '#eff6ff' },
-    { title: 'Active Companies', value: stats?.activeCompanies || 0, icon: <CheckCircle2 size={22} />, color: '#16a34a', bg: '#f0fdf4' },
-    { title: 'Pending Approval', value: stats?.pendingCompanies || 0, icon: <Clock size={22} />, color: '#d97706', bg: '#fffbeb' },
-    { title: 'Inactive / Blocked', value: (stats?.inactiveCompanies || 0) + (stats?.blockedCompanies || 0), icon: <XCircle size={22} />, color: '#dc2626', bg: '#fef2f2' },
-    { title: 'Total Customers', value: stats?.totalCustomers || 0, icon: <Users size={22} />, color: '#9333ea', bg: '#faf5ff' },
+    { title: 'Total Homeowners', value: stats?.totalCustomers || 0, icon: <Users size={22} />, color: '#9333ea', bg: '#faf5ff' },
+    { title: 'Total Volunteers', value: stats?.totalVolunteers || 0, icon: <ShieldCheck size={22} />, color: '#2563eb', bg: '#eff6ff' },
+    { title: 'Total Bookings', value: stats?.totalBookings || 0, icon: <CalendarCheck size={22} />, color: '#16a34a', bg: '#f0fdf4' },
+    { title: 'Total Services', value: stats?.totalServices || 0, icon: <Briefcase size={22} />, color: '#d97706', bg: '#fffbeb' },
     { title: 'Categories', value: stats?.totalCategories || 0, icon: <Layers size={22} />, color: '#0284c7', bg: '#f0f9ff' },
-    { title: 'Subcategories', value: stats?.totalSubcategories || 0, icon: <ShieldCheck size={22} />, color: '#0d9488', bg: '#f0fdfa' },
-    { title: "Today's Registrations", value: stats?.todayRegistrations || 0, icon: <UserPlus size={22} />, color: '#ea580c', bg: '#fff7ed' }
+    { title: 'Subcategories', value: stats?.totalSubcategories || 0, icon: <CheckCircle2 size={22} />, color: '#0d9488', bg: '#f0fdfa' },
+    { title: "Today's Registrations", value: stats?.todayRegistrations || 0, icon: <UserPlus size={22} />, color: '#ea580c', bg: '#fff7ed' },
+    { title: 'Pending Bookings', value: stats?.recentBookings?.filter(b => b.status === 'pending').length || 0, icon: <Clock size={22} />, color: '#dc2626', bg: '#fef2f2' },
   ];
 
-  const chartData = [
-    { label: 'Active', value: stats?.activeCompanies || 0, color: '#16a34a' },
-    { label: 'Pending', value: stats?.pendingCompanies || 0, color: '#d97706' },
-    { label: 'Inactive', value: stats?.inactiveCompanies || 0, color: '#64748b' },
-    { label: 'Blocked', value: stats?.blockedCompanies || 0, color: '#dc2626' }
-  ];
-
-  const recentCompanyColumns = [
-    { title: 'Company', dataIndex: 'company_name', key: 'company_name', render: text => <strong style={{ color: '#2563eb' }}>{text}</strong> },
-    { title: 'City', dataIndex: 'city', key: 'city' },
+  const recentBookingColumns = [
+    { title: 'Customer', dataIndex: 'customer_name', key: 'customer_name', render: text => <strong style={{ color: '#2563eb' }}>{text}</strong> },
+    { title: 'Service', dataIndex: 'service_name', key: 'service_name' },
     { title: 'Status', dataIndex: 'status', key: 'status', render: status => <StatusBadge status={status} /> },
-    { title: 'Registered', dataIndex: 'created_at', key: 'created_at', render: date => formatDate(date) }
+    { title: 'Date', dataIndex: 'created_at', key: 'created_at', render: date => formatDate(date) }
   ];
 
   const recentUserColumns = [
-    { title: 'User Name', key: 'name', render: (_, r) => `${r.first_name} ${r.last_name}` },
+    { title: 'Name', key: 'name', render: (_, r) => `${r.first_name} ${r.last_name}` },
     { title: 'Email', dataIndex: 'email', key: 'email' },
     { title: 'Role', dataIndex: 'role', key: 'role', render: r => <Tag color="blue">{r}</Tag> },
     { title: 'Status', dataIndex: 'status', key: 'status', render: s => <StatusBadge status={s} /> }
@@ -83,7 +75,7 @@ const AdminDashboardPage = () => {
     <div>
       <PageHeader
         title="Admin Command Center"
-        subtitle="Platform-wide monitoring, multi-tenant company management and analytics."
+        subtitle="Platform-wide monitoring, booking management and analytics."
       />
 
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
@@ -107,18 +99,15 @@ const AdminDashboardPage = () => {
       </Row>
 
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-        <Col xs={24} lg={10}>
-          <MetricChart title="Company Status Distribution" subtitle="Breakdown of registered service companies" data={chartData} />
-        </Col>
-
-        <Col xs={24} lg={14}>
-          <Card title="Recent Registered Companies" variant="borderless">
+        <Col xs={24}>
+          <Card title="Recent Bookings" variant="borderless">
             <Table
-              columns={recentCompanyColumns}
-              dataSource={stats?.recentCompanies || []}
+              columns={recentBookingColumns}
+              dataSource={stats?.recentBookings || []}
               rowKey="id"
               pagination={false}
               size="small"
+              locale={{ emptyText: 'No bookings yet' }}
             />
           </Card>
         </Col>
@@ -133,6 +122,7 @@ const AdminDashboardPage = () => {
               rowKey="id"
               pagination={false}
               size="small"
+              locale={{ emptyText: 'No users yet' }}
             />
           </Card>
         </Col>
