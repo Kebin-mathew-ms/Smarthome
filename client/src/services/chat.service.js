@@ -30,8 +30,8 @@ export const chatService = {
     return await api.get(`/chat/rooms/${bookingId}`);
   },
 
-  getMessages: async (roomId) => {
-    return await api.get(`/chat/messages/${roomId}`);
+  getMessages: async (bookingId) => {
+    return await api.get(`/chat/messages/${bookingId}`);
   },
 
   sendMessage: async (data) => {

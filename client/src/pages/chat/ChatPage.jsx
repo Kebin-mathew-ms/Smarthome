@@ -48,7 +48,7 @@ const ChatPage = () => {
       const roomRes = await chatService.getRoomByBookingId(bookingId);
       if (roomRes.success) {
         setRoom(roomRes.data);
-        const msgRes = await chatService.getMessages(roomRes.data.id);
+        const msgRes = await chatService.getMessages(bookingId);
         if (msgRes.success) setMessages(msgRes.data);
       }
 

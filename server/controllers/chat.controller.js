@@ -14,7 +14,7 @@ class ChatController {
 
   async getMessages(req, res, next) {
     try {
-      const messages = await chatService.getMessages(req.params.roomId, req.user, req.query);
+      const messages = await chatService.getMessages(req.params.bookingId, req.user, req.query);
       return sendSuccess(res, 'Chat messages retrieved successfully', messages, HTTP_STATUS.OK);
     } catch (error) {
       next(error);

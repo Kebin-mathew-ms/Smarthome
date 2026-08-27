@@ -11,7 +11,7 @@ const workUpdateController = require('../controllers/workUpdate.controller');
 // Chat & Messaging Endpoints
 // -------------------------------------------------------------
 router.get('/chat/rooms/:bookingId', authenticate, chatController.getRoomByBookingId);
-router.get('/chat/messages/:roomId', authenticate, chatController.getMessages);
+router.get('/chat/messages/:bookingId', authenticate, chatController.getMessages);
 router.post('/chat/message', authenticate, chatController.sendMessage);
 router.put('/chat/message/:id', authenticate, chatController.editMessage);
 router.delete('/chat/message/:id', authenticate, chatController.deleteMessage);
