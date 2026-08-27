@@ -1,20 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Input, Space, message, Select } from 'antd';
+import { Input, Space, message, Select, Row, Col, Card, Typography } from 'antd';
 import { Plus, Search, Edit2, Trash2, Layers } from 'lucide-react';
 import { useForm, Controller } from 'react-hook-form';
+import { useLocation, useNavigate } from 'react-router-dom';
 import PageHeader from '../../components/common/PageHeader';
 import AppTable from '../../components/common/AppTable';
 import AppButton from '../../components/common/AppButton';
 import AppModal from '../../components/common/AppModal';
 import StatusBadge from '../../components/common/StatusBadge';
 import FormField from '../../components/common/FormField';
+import SkeletonCard from '../../components/common/SkeletonCard';
 import { showConfirmModal } from '../../components/common/ConfirmModal';
 import { categoryService } from '../../services/category.service';
 import { formatDate } from '../../utils/formatters';
 
 const { Option } = Select;
+const { Title, Text } = Typography;
 
 const CategoriesPage = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
@@ -160,6 +167,67 @@ const CategoriesPage = () => {
     }
   ];
 
+  // Render Read-Only Grid for Customers/Homeowners
+  if (!isAdminRoute) {
+    return (
+      <div>
+        <PageHeader
+          title="Service Categories"
+          subtitle="Explore our specialized services and find the perfect package for your home care needs."
+        />
+
+        <div style={{ marginBottom: 24 }}>
+          <Input
+            prefix={<Search size={18} style={{ color: '#94a3b8', marginRight: 8 }} />}
+            placeholder="Search categories..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ maxWidth: 400 }}
+            allowClear
+            size="large"
+          />
+        </div>
+
+        {loading && categories.length === 0 ? (
+          <SkeletonCard rows={5} />
+        ) : (
+          <Row gutter={[20, 20]}>
+            {categories
+              .filter(cat => cat.status === 'active')
+              .map(cat => (
+                <Col xs={24} sm={12} md={8} lg={6} key={cat.id}>
+                  <Card
+                    hoverable
+                    variant="borderless"
+                    onClick={() => navigate(`/search?category=${cat.id}`)}
+                    styles={{ body: { padding: 24, textAlign: 'center', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' } }}
+                    style={{ borderRadius: 16, height: '100%', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}
+                  >
+                    <div style={{ width: 56, height: 56, borderRadius: 16, background: '#eff6ff', color: '#2563eb', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16, margin: '0 auto 16px' }}>
+                      <Layers size={28} />
+                    </div>
+                    <Title level={5} style={{ margin: '0 0 8px', fontWeight: 700 }}>{cat.category_name}</Title>
+                    <Text type="secondary" style={{ fontSize: 13, flexGrow: 1 }}>{cat.description || 'Professional service offerings'}</Text>
+                  </Card>
+                </Col>
+              ))}
+
+            {categories.length === 0 && !loading && (
+              <Col span={24}>
+                <Card bordered={false} style={{ textAlign: 'center', padding: '40px 0', borderRadius: 16 }}>
+                  <Layers size={40} style={{ color: '#94a3b8', marginBottom: 12 }} />
+                  <Title level={5}>No Categories Found</Title>
+                  <Text type="secondary">Try searching for something else.</Text>
+                </Card>
+              </Col>
+            )}
+          </Row>
+        )}
+      </div>
+    );
+  }
+
+  // Render Full Management Table for Admins
   return (
     <div>
       <PageHeader
