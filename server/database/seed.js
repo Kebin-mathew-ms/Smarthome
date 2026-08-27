@@ -211,7 +211,7 @@ async function seed() {
 
     // ── 5. Services, Features & Packages ──────────────────────────────────────
     logger.info('  → Seeding services & packages...');
-    const [svc1Id, svc2Id, svc3Id, svc4Id] = await insert(connection, 'services', [
+    const [svc1Id, svc2Id, svc3Id, svc4Id, svc5Id, svc6Id, svc7Id] = await insert(connection, 'services', [
       {
         company_id: null,
         category_id: electricalCatId,
@@ -260,6 +260,42 @@ async function seed() {
         service_type: 'on_site',
         status: 'active',
       },
+      {
+        company_id: null,
+        category_id: carpentryId,
+        subcategory_id: furnitureSubId,
+        service_name: 'Custom Furniture Assembly',
+        short_description: 'Assembly of flat-pack furniture, cabinets, shelves.',
+        full_description: 'Our helpers build tables, chairs, cupboards and shelves carefully with standard tools.',
+        starting_price: 499.00,
+        estimated_duration: '1-3 hours',
+        service_type: 'on_site',
+        status: 'active',
+      },
+      {
+        company_id: null,
+        category_id: applianceCatId,
+        subcategory_id: acSubId,
+        service_name: 'AC Split/Window Service & Cleaning',
+        short_description: 'Deep filter cleaning, gas checkup, cooling tuning.',
+        full_description: 'Increase cooling efficiency and clean dust and mold from air vents and filters.',
+        starting_price: 699.00,
+        estimated_duration: '1-2 hours',
+        service_type: 'on_site',
+        status: 'active',
+      },
+      {
+        company_id: null,
+        category_id: paintingCatId,
+        subcategory_id: interiorSubId,
+        service_name: 'Single Room Interior Painting',
+        short_description: 'Premium paint coating for a single room.',
+        full_description: 'Professional masking, sanding, priming, and double coat application of premium emulsion.',
+        starting_price: 1999.00,
+        estimated_duration: '4-6 hours',
+        service_type: 'on_site',
+        status: 'active',
+      },
     ]);
 
     await insert(connection, 'service_features', [
@@ -268,13 +304,19 @@ async function seed() {
       { service_id: svc2Id, feature_name: 'Non-invasive leak detection' },
       { service_id: svc3Id, feature_name: 'Eco-friendly cleaning products' },
       { service_id: svc4Id, feature_name: 'Safe for kids and pets' },
+      { service_id: svc5Id, feature_name: 'Scratch-free assembly' },
+      { service_id: svc6Id, feature_name: 'Jet wash filter cleaning' },
+      { service_id: svc7Id, feature_name: 'Dampness treatment included' },
     ]);
 
-    const [pkg1Id, pkg2Id, pkg3Id, pkg4Id] = await insert(connection, 'service_packages', [
+    const [pkg1Id, pkg2Id, pkg3Id, pkg4Id, pkg5Id, pkg6Id, pkg7Id] = await insert(connection, 'service_packages', [
       { service_id: svc1Id, package_name: 'Basic Wiring', package_description: 'Wiring for 1 room.', price: 1499.00, estimated_duration: '2-3 hours', status: 'active' },
       { service_id: svc1Id, package_name: '2BHK Wiring', package_description: 'Full 2BHK wiring.', price: 3999.00, estimated_duration: '4-6 hours', status: 'active' },
       { service_id: svc3Id, package_name: 'Standard Deep Clean', package_description: '3BHK deep clean.', price: 2499.00, estimated_duration: '5-6 hours', status: 'active' },
       { service_id: svc4Id, package_name: '3-Seater Sofa Clean', package_description: 'Steam clean for 3-seater sofa.', price: 999.00, estimated_duration: '1 hour', status: 'active' },
+      { service_id: svc5Id, package_name: 'Standard Assembly', package_description: 'Standard table or shelf assembly.', price: 499.00, estimated_duration: '1-2 hours', status: 'active' },
+      { service_id: svc6Id, package_name: 'Standard AC Service', package_description: 'Standard filter cleaning.', price: 699.00, estimated_duration: '1 hour', status: 'active' },
+      { service_id: svc7Id, package_name: 'Standard Room Paint', package_description: 'Standard single room painting.', price: 1999.00, estimated_duration: '4-5 hours', status: 'active' },
     ]);
 
     // ── 6. Volunteers & Skills ────────────────────────────────────────────────
