@@ -33,10 +33,10 @@ class ChatService {
         participantRole = 'Company';
       }
     } else {
-      // Check if user is an assigned technician employee
-      if (booking.employees && booking.employees.some(e => e.id === user.id)) {
+      // Check if user is an assigned volunteer technician
+      if (booking.employees && booking.employees.some(e => e.email === user.email)) {
         isAuthorized = true;
-        participantRole = 'Employee';
+        participantRole = 'Volunteer';
       }
     }
 

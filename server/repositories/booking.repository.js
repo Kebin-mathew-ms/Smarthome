@@ -29,7 +29,7 @@ class BookingRepository {
 
     // Assigned Volunteers
     const empRows = await query(
-      `SELECT e.id, e.volunteer_name, e.designation, e.phone, e.profile_photo, be.assigned_at
+      `SELECT e.id, e.volunteer_name, e.volunteer_name as employee_name, e.email, e.designation, e.phone, e.profile_photo, be.assigned_at
        FROM booking_volunteers be
        JOIN volunteers e ON be.volunteer_id = e.id
        WHERE be.booking_id = ?`,
