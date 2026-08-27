@@ -36,7 +36,7 @@ class ChatService {
       // Check if user is an assigned volunteer technician
       if (booking.employees && booking.employees.some(e => e.email === user.email)) {
         isAuthorized = true;
-        participantRole = 'Volunteer';
+        participantRole = 'Employee';
       }
     }
 
