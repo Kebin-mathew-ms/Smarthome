@@ -108,7 +108,8 @@ class BookingRepository {
     const total = countRows[0].total;
 
     const dataSql = `
-      SELECT b.*, u.full_name as customer_name, s.service_name
+      SELECT b.*, u.full_name as customer_name, s.service_name,
+             (SELECT GROUP_CONCAT(v.volunteer_name SEPARATOR ', ') FROM booking_volunteers bv JOIN volunteers v ON bv.volunteer_id = v.id WHERE bv.booking_id = b.id) as volunteer_names
       FROM bookings b
       JOIN users u ON b.user_id = u.id
       JOIN services s ON b.service_id = s.id
