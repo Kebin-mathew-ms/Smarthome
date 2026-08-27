@@ -49,8 +49,8 @@ class CustomerMarketplaceService {
     };
   }
 
-  async searchMarketplace(term) {
-    return await marketplaceRepository.searchMarketplace(term || '');
+  async searchMarketplace(term, categoryId) {
+    return await marketplaceRepository.searchMarketplace(term || '', categoryId);
   }
 }
 

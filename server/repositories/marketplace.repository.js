@@ -163,30 +163,42 @@ class MarketplaceRepository {
     return await query(sql, [Number(limit)]);
   }
 
-  async searchMarketplace(term) {
-    const searchTerm = `%${term}%`;
+  async searchMarketplace(term, categoryId) {
+    const params = [];
+    let servicesSql = `
+      SELECT s.id, s.service_name, s.starting_price, s.thumbnail, c.category_name
+      FROM services s
+      JOIN service_categories c ON s.category_id = c.id
+      WHERE s.deleted_at IS NULL AND s.status = 'active'
+    `;
 
-    const companies = await query(
-      `SELECT id, company_name, logo, city, status FROM companies WHERE (company_name LIKE ? OR description LIKE ?) AND deleted_at IS NULL AND status = 'active' LIMIT 5`,
-      [searchTerm, searchTerm]
-    );
+    if (categoryId) {
+      servicesSql += ' AND s.category_id = ?';
+      params.push(Number(categoryId));
+    }
 
-    const categories = await query(
-      `SELECT id, category_name, icon FROM service_categories WHERE category_name LIKE ? AND deleted_at IS NULL LIMIT 5`,
-      [searchTerm]
-    );
+    if (term) {
+      servicesSql += ' AND (s.service_name LIKE ? OR s.short_description LIKE ?)';
+      const searchTerm = `%${term}%`;
+      params.push(searchTerm, searchTerm);
+    }
 
-    const services = await query(
-      `SELECT s.id, s.service_name, s.starting_price, s.thumbnail, c.category_name
-       FROM services s
-       JOIN service_categories c ON s.category_id = c.id
-       WHERE (s.service_name LIKE ? OR s.short_description LIKE ?) AND s.deleted_at IS NULL AND s.status = 'active'
-       LIMIT 5`,
-      [searchTerm, searchTerm]
-    );
+    servicesSql += ' LIMIT 50';
+
+    const services = await query(servicesSql, params);
+
+    // Categories (for textual search query)
+    let categories = [];
+    if (term) {
+      const searchTerm = `%${term}%`;
+      categories = await query(
+        `SELECT id, category_name, icon FROM service_categories WHERE category_name LIKE ? AND deleted_at IS NULL LIMIT 5`,
+        [searchTerm]
+      );
+    }
 
     return {
-      companies,
+      companies: [], // Company layer removed completely
       categories,
       services
     };

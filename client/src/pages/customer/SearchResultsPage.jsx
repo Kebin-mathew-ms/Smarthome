@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Row, Col, Card, Typography, Tag, Input, Space, message } from 'antd';
-import { Search, Building2, Layers, Briefcase } from 'lucide-react';
+import { Row, Col, Card, Typography, Tag, Space, message } from 'antd';
+import { Search, Layers, Briefcase } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import SkeletonCard from '../../components/common/SkeletonCard';
 import Footer from '../../layouts/Footer';
@@ -13,17 +13,19 @@ const SearchResultsPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const query = searchParams.get('q') || '';
+  const categoryId = searchParams.get('category') || '';
 
   const [results, setResults] = useState({ companies: [], categories: [], services: [] });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!query.trim()) return;
+    // If no search query and no category filter, do nothing
+    if (!query.trim() && !categoryId) return;
 
     const performSearch = async () => {
       setLoading(true);
       try {
-        const res = await customerService.searchMarketplace(query);
+        const res = await customerService.searchMarketplace(query, categoryId);
         if (res.success) {
           setResults(res.data);
         }
@@ -34,37 +36,27 @@ const SearchResultsPage = () => {
       }
     };
     performSearch();
-  }, [query]);
+  }, [query, categoryId]);
+
+  const getHeaderTitle = () => {
+    if (query) return `Search Results for "${query}"`;
+    if (categoryId && results.services.length > 0) {
+      return `Services in Category: ${results.services[0].category_name}`;
+    }
+    return 'Browse Services';
+  };
 
   return (
     <div>
       <PageHeader
-        title={`Search Results for "${query}"`}
-        subtitle="Found matching companies, service categories, and listings."
+        title={getHeaderTitle()}
+        subtitle="Found matching service categories and listings."
       />
 
       {loading ? (
         <SkeletonCard rows={6} />
       ) : (
         <div>
-          {/* Companies Section */}
-          <Card title={<Space><Building2 size={18} /> Provider Companies ({results.companies.length})</Space>} bordered={false} style={{ marginBottom: 24, borderRadius: 16 }}>
-            <Row gutter={[16, 16]}>
-              {results.companies.map(comp => (
-                <Col xs={24} sm={12} md={8} key={comp.id}>
-                  <Card hoverable onClick={() => navigate(`/companies/${comp.id}`)}>
-                    <Title level={5} style={{ margin: 0 }}>{comp.company_name}</Title>
-                    <Text type="secondary">{comp.city}</Text>
-                  </Card>
-                </Col>
-              ))}
-
-              {results.companies.length === 0 && (
-                <Col span={24}><Text type="secondary">No matching provider companies found.</Text></Col>
-              )}
-            </Row>
-          </Card>
-
           {/* Services Section */}
           <Card title={<Space><Briefcase size={18} /> Service Offerings ({results.services.length})</Space>} bordered={false} style={{ marginBottom: 24, borderRadius: 16 }}>
             <Row gutter={[16, 16]}>
@@ -79,7 +71,7 @@ const SearchResultsPage = () => {
               ))}
 
               {results.services.length === 0 && (
-                <Col span={24}><Text type="secondary">No matching services found.</Text></Col>
+                <Col span={24}><Text type="secondary">No matching services found under this category.</Text></Col>
               )}
             </Row>
           </Card>

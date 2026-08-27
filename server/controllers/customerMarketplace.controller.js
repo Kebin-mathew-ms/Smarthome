@@ -63,7 +63,7 @@ class CustomerMarketplaceController {
 
   async searchMarketplace(req, res, next) {
     try {
-      const results = await customerMarketplaceService.searchMarketplace(req.query.q || '');
+      const results = await customerMarketplaceService.searchMarketplace(req.query.q || '', req.query.category);
       return sendSuccess(res, 'Marketplace search results retrieved', results, HTTP_STATUS.OK);
     } catch (error) {
       next(error);

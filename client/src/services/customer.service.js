@@ -17,8 +17,8 @@ export const customerService = {
   getServiceById: async (id) => {
     return await api.get(`/services/${id}`);
   },
-  searchMarketplace: async (q) => {
-    return await api.get('/marketplace/search', { params: { q } });
+  searchMarketplace: async (q, category) => {
+    return await api.get('/marketplace/search', { params: { q, category } });
   },
 
   // Customer Authorized Interactions
