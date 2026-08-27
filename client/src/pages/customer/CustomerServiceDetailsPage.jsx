@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Row, Col, Card, Typography, Tag, Space, Descriptions, Table, Button, Collapse, message } from 'antd';
-import { Briefcase, Building2, Star, Clock, CheckCircle2, ShieldCheck, ArrowLeft, Heart, Layers } from 'lucide-react';
+import { Row, Col, Card, Typography, Tag, Space, Button, Collapse, message } from 'antd';
+import { Briefcase, Clock, CheckCircle2, ShieldCheck, Heart, Layers, CalendarCheck } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
-import AppButton from '../../components/common/AppButton';
 import AppBreadcrumb from '../../components/common/AppBreadcrumb';
 import SkeletonCard from '../../components/common/SkeletonCard';
-import StatusBadge from '../../components/common/StatusBadge';
 import Footer from '../../layouts/Footer';
 import { customerService } from '../../services/customer.service';
 import { useAuth } from '../../hooks/useAuth';
@@ -61,6 +59,15 @@ const CustomerServiceDetailsPage = () => {
     }
   };
 
+  const handleBookService = () => {
+    if (!user) {
+      message.info('Please log in to book services.');
+      navigate(ROUTES.LOGIN);
+      return;
+    }
+    navigate(`/book/${id}`);
+  };
+
   if (loading) {
     return (
       <div>
@@ -74,14 +81,14 @@ const CustomerServiceDetailsPage = () => {
     return (
       <div>
         <PageHeader title="Service Not Found" />
-        <Button onClick={() => navigate(ROUTES.COMPANIES)}>Back to Marketplace</Button>
+        <Button onClick={() => navigate(ROUTES.HOME)}>Back to Marketplace</Button>
       </div>
     );
   }
 
   const breadcrumbItems = [
-    { title: 'Marketplace', path: ROUTES.COMPANIES },
-    { title: service.company_name, path: `/companies/${service.company_id}` },
+    { title: 'Marketplace', path: ROUTES.HOME },
+    { title: service.category_name, path: `/search?category=${service.category_id}` },
     { title: service.service_name }
   ];
 
@@ -131,7 +138,7 @@ const CustomerServiceDetailsPage = () => {
             <div style={{ marginTop: 24 }}>
               <Title level={4} style={{ fontWeight: 700 }}>Service Specification & Scope</Title>
               <Paragraph style={{ fontSize: 15, lineHeight: 1.7 }}>
-                {service.full_description || 'Full professional home care service provided by certified company technicians.'}
+                {service.full_description || 'Full professional home care service provided by certified platform technicians.'}
               </Paragraph>
             </div>
 
@@ -158,7 +165,7 @@ const CustomerServiceDetailsPage = () => {
                     <Card type="inner" title={<strong style={{ color: '#2563eb' }}>{pkg.package_name}</strong>} extra={<strong style={{ color: '#16a34a', fontSize: 18 }}>${Number(pkg.price).toFixed(2)}</strong>}>
                       <Paragraph type="secondary" style={{ minHeight: 48 }}>{pkg.package_description || 'Standard package option.'}</Paragraph>
                       <Text style={{ fontSize: 12, display: 'block', marginBottom: 12 }}>Duration: {pkg.estimated_duration || 'N/A'}</Text>
-                      <Button type="primary" block>Select Package</Button>
+                      <Button type="primary" block onClick={handleBookService}>Select Package</Button>
                     </Card>
                   </Col>
                 ))}
@@ -180,53 +187,24 @@ const CustomerServiceDetailsPage = () => {
           )}
         </Col>
 
-        {/* Sidebar Column: Company Card & Actions */}
+        {/* Sidebar Column: Service Booking Action Card */}
         <Col xs={24} lg={8}>
           <Card bordered={false} style={{ marginBottom: 24, borderRadius: 16 }}>
             <div style={{ textAlign: 'center', padding: '12px 0' }}>
-              <div style={{ width: 64, height: 64, borderRadius: 14, background: '#eff6ff', color: '#2563eb', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 28, marginBottom: 12 }}>
-                {service.company_name ? service.company_name.charAt(0) : 'C'}
+              <div style={{ width: 64, height: 64, borderRadius: 14, background: '#eff6ff', color: '#2563eb', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+                <CalendarCheck size={28} />
               </div>
 
-              <Title level={4} style={{ margin: '0 0 4px', fontWeight: 700 }}>{service.company_name}</Title>
-              <Text type="secondary" style={{ fontSize: 13, display: 'block', marginBottom: 12 }}>{service.city}, {service.state}</Text>
+              <Title level={4} style={{ margin: '0 0 8px', fontWeight: 700 }}>Direct Home Dispatch</Title>
+              <Text type="secondary" style={{ fontSize: 13, display: 'block', marginBottom: 24 }}>
+                Book this service now. Our platform admins will directly dispatch a vetted community volunteer electrician/technician to your home.
+              </Text>
 
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 6, marginBottom: 16 }}>
-                <Star size={16} style={{ color: '#f59e0b', fill: '#f59e0b' }} />
-                <strong>{Number(service.company_rating).toFixed(1)}</strong>
-                <Text type="secondary" style={{ fontSize: 12 }}>({service.company_reviews_count} reviews)</Text>
-              </div>
-
-              <Button
-                type="default"
-                block
-                icon={<Building2 size={16} />}
-                onClick={() => navigate(`/companies/${service.company_id}`)}
-                style={{ marginBottom: 12 }}
-              >
-                View Full Company Profile
-              </Button>
-
-              <Button type="primary" block size="large" style={{ borderRadius: 8, fontWeight: 700 }}>
+              <Button type="primary" block size="large" onClick={handleBookService} style={{ borderRadius: 8, fontWeight: 700, height: 48 }}>
                 Request / Book Service
               </Button>
             </div>
           </Card>
-
-          {/* Related Services from Same Company */}
-          {service.relatedServices && service.relatedServices.length > 0 && (
-            <Card title={`More from ${service.company_name}`} bordered={false} style={{ borderRadius: 16 }}>
-              {service.relatedServices.map(rel => (
-                <div key={rel.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f1f5f9' }}>
-                  <div>
-                    <Link to={`/services/${rel.id}`} style={{ fontWeight: 600, color: '#0f172a', display: 'block' }}>{rel.service_name}</Link>
-                    <Text type="secondary" style={{ fontSize: 12 }}>{rel.estimated_duration || 'Duration N/A'}</Text>
-                  </div>
-                  <strong style={{ color: '#16a34a' }}>${Number(rel.starting_price).toFixed(2)}</strong>
-                </div>
-              ))}
-            </Card>
-          )}
         </Col>
       </Row>
 
