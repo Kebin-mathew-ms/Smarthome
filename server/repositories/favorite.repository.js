@@ -42,7 +42,7 @@ class FavoriteRepository {
       FROM favorites f
       JOIN services s ON f.service_id = s.id
       JOIN service_categories c ON s.category_id = c.id
-      JOIN companies comp ON s.company_id = comp.id
+      LEFT JOIN companies comp ON s.company_id = comp.id
       WHERE f.user_id = ? AND f.service_id IS NOT NULL AND s.deleted_at IS NULL
       ORDER BY f.created_at DESC
     `;

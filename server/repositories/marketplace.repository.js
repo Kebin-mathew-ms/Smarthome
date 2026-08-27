@@ -106,7 +106,7 @@ class MarketplaceRepository {
       FROM services s
       JOIN service_categories c ON s.category_id = c.id
       JOIN service_subcategories sub ON s.subcategory_id = sub.id
-      JOIN companies comp ON s.company_id = comp.id
+      LEFT JOIN companies comp ON s.company_id = comp.id
       LEFT JOIN company_reviews_summary cr ON comp.id = cr.company_id
       WHERE s.id = ? AND s.deleted_at IS NULL
       LIMIT 1
@@ -155,8 +155,8 @@ class MarketplaceRepository {
       SELECT s.*, c.category_name, comp.company_name, comp.logo, comp.city
       FROM services s
       JOIN service_categories c ON s.category_id = c.id
-      JOIN companies comp ON s.company_id = comp.id
-      WHERE s.deleted_at IS NULL AND s.status = 'active' AND comp.status = 'active'
+      LEFT JOIN companies comp ON s.company_id = comp.id
+      WHERE s.deleted_at IS NULL AND s.status = 'active'
       ORDER BY s.created_at DESC
       LIMIT ?
     `;

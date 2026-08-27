@@ -42,7 +42,7 @@ class RecentlyViewedRepository {
       FROM recently_viewed rv
       JOIN services s ON rv.service_id = s.id
       JOIN service_categories c ON s.category_id = c.id
-      JOIN companies comp ON s.company_id = comp.id
+      LEFT JOIN companies comp ON s.company_id = comp.id
       WHERE rv.user_id = ? AND rv.service_id IS NOT NULL AND s.deleted_at IS NULL
       ORDER BY rv.viewed_at DESC
       LIMIT 10
