@@ -29,6 +29,7 @@ class Booking {
     this.address = address;
     this.history = history;
     this.volunteers = volunteers;
+    this.employees = volunteers; // Compatibility fallback for older UI components
   }
 }
 
