@@ -27,6 +27,7 @@ export const ROUTES = {
 
   // Customer Marketplace & Booking Routes
   CATEGORIES: '/categories',
+  SERVICE_DETAILS: '/services/:id',
   FAVORITES: '/favorites',
   FOLLOWING: '/following',
   RECENTLY_VIEWED: '/recently-viewed',
