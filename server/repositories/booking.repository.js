@@ -38,6 +38,10 @@ class BookingRepository {
     booking.volunteers = empRows;
     booking.employees = empRows; // Compatibility fallback
 
+    // Customizations
+    const customizationRows = await query(`SELECT * FROM booking_customizations WHERE booking_id = ?`, [id]);
+    booking.customizations = customizationRows;
+
     return booking;
   }
 
@@ -108,11 +112,12 @@ class BookingRepository {
     const total = countRows[0].total;
 
     const dataSql = `
-      SELECT b.*, u.full_name as customer_name, s.service_name,
+      SELECT b.*, u.full_name as customer_name, s.service_name, sp.package_name,
              (SELECT GROUP_CONCAT(v.volunteer_name SEPARATOR ', ') FROM booking_volunteers bv JOIN volunteers v ON bv.volunteer_id = v.id WHERE bv.booking_id = b.id) as volunteer_names
       FROM bookings b
       JOIN users u ON b.user_id = u.id
       JOIN services s ON b.service_id = s.id
+      LEFT JOIN service_packages sp ON b.package_id = sp.id
       ${whereClause}
       ORDER BY b.created_at DESC
       LIMIT ? OFFSET ?
@@ -149,7 +154,8 @@ class BookingRepository {
         subtotal,
         tax_amount,
         discount_amount,
-        total_amount
+        total_amount,
+        customizations = []
       } = bookingData;
 
       const [res] = await conn.execute(
@@ -165,6 +171,15 @@ class BookingRepository {
          VALUES (?, ?, ?, ?, ?, ?)`,
         [bookingId, service_id, package_id || null, subtotal, 1, subtotal]
       );
+
+      // Save Customizations
+      for (const cust of customizations) {
+        await conn.execute(
+          `INSERT INTO booking_customizations (booking_id, group_id, option_id, group_name, option_name, price, quantity, total_price)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [bookingId, cust.group_id, cust.option_id, cust.group_name, cust.option_name, cust.price, cust.quantity, cust.total_price]
+        );
+      }
 
       // Initial Status History
       await conn.execute(

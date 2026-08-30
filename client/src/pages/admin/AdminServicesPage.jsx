@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, Row, Col, Input, Space, message, Select, Button, Form, Modal, Tag } from 'antd';
-import { Plus, Search, Briefcase, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Search, Briefcase, Edit2, Trash2, Settings } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import AppTable from '../../components/common/AppTable';
 import AppButton from '../../components/common/AppButton';
@@ -12,6 +13,7 @@ import { formatDate } from '../../utils/formatters';
 const { Option } = Select;
 
 const AdminServicesPage = () => {
+  const navigate = useNavigate();
   const [services, setServices] = useState([]);
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
@@ -174,6 +176,9 @@ const AdminServicesPage = () => {
       key: 'actions',
       render: (_, record) => (
         <Space>
+          <Button type="default" size="small" icon={<Settings size={14} />} onClick={() => navigate(`/admin/services/${record.id}/customizations`)}>
+            Customize
+          </Button>
           <Button type="default" size="small" icon={<Edit2 size={14} />} onClick={() => handleOpenEditModal(record)}>
             Edit
           </Button>

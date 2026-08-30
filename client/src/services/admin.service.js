@@ -118,5 +118,38 @@ export const adminService = {
   // Audit Logs
   getAuditLogs: async (params) => {
     return await api.get('/admin/audit-logs', { params });
+  },
+
+  // Service Customization Management
+  getServiceCustomizations: async (serviceId, packageId = null) => {
+    const params = packageId ? { package_id: packageId } : {};
+    return await api.get(`/services/${serviceId}/customizations`, { params });
+  },
+  createCustomizationGroup: async (serviceId, groupData) => {
+    return await api.post(`/admin/services/${serviceId}/customizations/groups`, groupData);
+  },
+  updateCustomizationGroup: async (groupId, groupData) => {
+    return await api.put(`/admin/services/customizations/groups/${groupId}`, groupData);
+  },
+  deleteCustomizationGroup: async (groupId) => {
+    return await api.delete(`/admin/services/customizations/groups/${groupId}`);
+  },
+  createCustomizationOption: async (optionData) => {
+    return await api.post(`/admin/services/customizations/options`, optionData);
+  },
+  updateCustomizationOption: async (optionId, optionData) => {
+    return await api.put(`/admin/services/customizations/options/${optionId}`, optionData);
+  },
+  deleteCustomizationOption: async (optionId) => {
+    return await api.delete(`/admin/services/customizations/options/${optionId}`);
+  },
+  getPackageOverrides: async (packageId) => {
+    return await api.get(`/admin/packages/${packageId}/customizations`);
+  },
+  savePackageConfig: async (configData) => {
+    return await api.post(`/admin/packages/customizations`, configData);
+  },
+  deletePackageConfig: async (packageId, optionId) => {
+    return await api.delete(`/admin/packages/${packageId}/customizations/${optionId}`);
   }
 };

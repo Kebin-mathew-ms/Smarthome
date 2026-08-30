@@ -236,6 +236,30 @@ const VolunteerBookingDetailsPage = () => {
             )}
           </Card>
 
+          {/* Service Details & Requirements */}
+          <Card title="Service Details & Requirements" bordered={false} style={{ borderRadius: 16, marginBottom: 24 }}>
+            <Descriptions column={1} bordered size="small">
+              <Descriptions.Item label="Service Details">
+                <strong>{booking.service_name}</strong>
+                {booking.package_name && <Tag color="blue" style={{ marginLeft: 8 }}>{booking.package_name}</Tag>}
+              </Descriptions.Item>
+              <Descriptions.Item label="Booking Price">
+                <strong style={{ color: '#16a34a', fontSize: 16 }}>${Number(booking.total_amount).toFixed(2)}</strong>
+              </Descriptions.Item>
+              {booking.customizations && booking.customizations.length > 0 && (
+                <Descriptions.Item label="Customer Requirements">
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {booking.customizations.map(c => (
+                      <Tag key={c.id} color="cyan">
+                        {c.option_name}{c.quantity > 1 ? ` (x${c.quantity})` : ''}
+                      </Tag>
+                    ))}
+                  </div>
+                </Descriptions.Item>
+              )}
+            </Descriptions>
+          </Card>
+
           {/* Customer & Address Card */}
           <Card title="Customer & Address Information" bordered={false} style={{ borderRadius: 16 }}>
             <Descriptions column={1} bordered size="small">

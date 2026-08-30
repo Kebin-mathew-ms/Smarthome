@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Input, Select, Button, Typography, message } from 'antd';
+import { Card, Input, Select, Button, Typography, Tag, message } from 'antd';
 import { FileText, Plus } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import AppModal from '../../components/common/AppModal';
@@ -19,6 +19,30 @@ const VolunteerWorkLogsPage = () => {
   const [bookingId, setBookingId] = useState(null);
   const [workSummary, setWorkSummary] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  const [selectedBookingDetails, setSelectedBookingDetails] = useState(null);
+  const [detailsLoading, setDetailsLoading] = useState(false);
+
+  useEffect(() => {
+    if (bookingId) {
+      const fetchDetails = async () => {
+        setDetailsLoading(true);
+        try {
+          const res = await volunteerService.getAssignedBookingById(bookingId);
+          if (res.success) {
+            setSelectedBookingDetails(res.data);
+          }
+        } catch (err) {
+          console.error('Failed to load booking details', err);
+        } finally {
+          setDetailsLoading(false);
+        }
+      };
+      fetchDetails();
+    } else {
+      setSelectedBookingDetails(null);
+    }
+  }, [bookingId]);
 
   const fetchBookings = async () => {
     setLoading(true);
@@ -87,6 +111,28 @@ const VolunteerWorkLogsPage = () => {
               ))}
             </Select>
           </FormField>
+
+          {detailsLoading ? (
+            <p style={{ fontSize: 12, color: '#64748b', marginBottom: 16 }}>Loading task requirements...</p>
+          ) : selectedBookingDetails && (
+            <div style={{ padding: 12, background: '#f8fafc', borderRadius: 8, marginBottom: 16, border: '1px solid #e2e8f0' }}>
+              <div style={{ fontSize: 13, marginBottom: 6 }}><strong>Task:</strong> {selectedBookingDetails.service_name} {selectedBookingDetails.package_name && `(${selectedBookingDetails.package_name})`}</div>
+              {selectedBookingDetails.customizations && selectedBookingDetails.customizations.length > 0 ? (
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4 }}>Customer Requirements:</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                    {selectedBookingDetails.customizations.map(c => (
+                      <Tag key={c.id} color="cyan" style={{ fontSize: 11 }}>
+                        {c.option_name}{c.quantity > 1 ? ` (x${c.quantity})` : ''}
+                      </Tag>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div style={{ fontSize: 12, color: '#64748b' }}>No customizations selected.</div>
+              )}
+            </div>
+          )}
 
           <FormField label="Work Notes & Summary" required>
             <Input.TextArea rows={4} placeholder="Describe tasks completed, community assistance provided..." value={workSummary} onChange={e => setWorkSummary(e.target.value)} />

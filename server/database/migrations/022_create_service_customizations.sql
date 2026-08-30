@@ -1,0 +1,55 @@
+CREATE TABLE IF NOT EXISTS customization_groups (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  service_id INT NOT NULL,
+  group_name VARCHAR(150) NOT NULL,
+  group_description VARCHAR(255) NULL,
+  selection_type ENUM('single', 'multi', 'toggle', 'quantity') NOT NULL DEFAULT 'single',
+  display_order INT NOT NULL DEFAULT 0,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_cust_groups_service FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS customization_options (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  group_id INT NOT NULL,
+  option_name VARCHAR(150) NOT NULL,
+  description VARCHAR(255) NULL,
+  price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+  min_quantity INT NULL DEFAULT 0,
+  max_quantity INT NULL DEFAULT NULL,
+  display_order INT NOT NULL DEFAULT 0,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_cust_options_group FOREIGN KEY (group_id) REFERENCES customization_groups(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS package_option_configs (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  package_id INT NOT NULL,
+  option_id INT NOT NULL,
+  is_included BOOLEAN NOT NULL DEFAULT FALSE,
+  additional_price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_pkg_opt (package_id, option_id),
+  CONSTRAINT fk_pkg_opt_package FOREIGN KEY (package_id) REFERENCES service_packages(id) ON DELETE CASCADE,
+  CONSTRAINT fk_pkg_opt_option FOREIGN KEY (option_id) REFERENCES customization_options(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS booking_customizations (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  booking_id INT NOT NULL,
+  group_id INT NULL,
+  option_id INT NULL,
+  group_name VARCHAR(150) NOT NULL,
+  option_name VARCHAR(150) NOT NULL,
+  price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+  quantity INT NOT NULL DEFAULT 1,
+  total_price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_booking_cust_booking FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

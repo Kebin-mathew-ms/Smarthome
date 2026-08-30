@@ -44,5 +44,10 @@ export const customerService = {
 
   getRecentlyViewed: async () => {
     return await api.get('/recently-viewed');
+  },
+
+  getServiceCustomizations: async (serviceId, packageId = null) => {
+    const params = packageId ? { package_id: packageId } : {};
+    return await api.get(`/services/${serviceId}/customizations`, { params });
   }
 };

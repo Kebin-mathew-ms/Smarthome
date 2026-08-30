@@ -166,10 +166,30 @@ const CustomerBookingDetailsPage = () => {
             <Descriptions column={2} bordered size="small">
               <Descriptions.Item label="Service">{booking.service_name}</Descriptions.Item>
               <Descriptions.Item label="Package">{booking.package_name || 'Standard Offering'}</Descriptions.Item>
-              <Descriptions.Item label="Provider">{booking.company_name}</Descriptions.Item>
+              <Descriptions.Item label="Provider">{booking.company_name || 'N/A'}</Descriptions.Item>
               <Descriptions.Item label="Current Status"><StatusBadge status={booking.booking_status} /></Descriptions.Item>
               <Descriptions.Item label="Payment Method">{booking.payment_method}</Descriptions.Item>
               <Descriptions.Item label="Payment Status"><StatusBadge status={booking.payment_status} /></Descriptions.Item>
+              
+              {booking.customizations && booking.customizations.length > 0 && (
+                <Descriptions.Item label="Selected Customizations" span={2}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {booking.customizations.map(c => (
+                      <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontSize: 13 }}>
+                        <span>
+                          <Tag color="cyan">{c.group_name}</Tag>
+                          <strong>{c.option_name}</strong>
+                          {c.quantity > 1 && ` x ${c.quantity}`}
+                        </span>
+                        <span style={{ color: Number(c.total_price) === 0 ? '#16a34a' : '#475569' }}>
+                          {Number(c.total_price) === 0 ? 'Included' : `$${Number(c.total_price).toFixed(2)}`}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </Descriptions.Item>
+              )}
+
               <Descriptions.Item label="Subtotal">${Number(booking.subtotal).toFixed(2)}</Descriptions.Item>
               <Descriptions.Item label="Tax (10%)">${Number(booking.tax_amount).toFixed(2)}</Descriptions.Item>
               <Descriptions.Item label="Total Amount"><strong style={{ color: '#16a34a', fontSize: 18 }}>${Number(booking.total_amount).toFixed(2)}</strong></Descriptions.Item>

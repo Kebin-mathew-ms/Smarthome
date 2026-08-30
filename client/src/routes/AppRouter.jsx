@@ -23,6 +23,7 @@ const VolunteersPage = lazy(() => import('../pages/admin/VolunteersPage'));
 const CategoriesPage = lazy(() => import('../pages/admin/CategoriesPage'));
 const SubCategoriesPage = lazy(() => import('../pages/admin/SubCategoriesPage'));
 const AdminServicesPage = lazy(() => import('../pages/admin/AdminServicesPage'));
+const AdminServiceCustomizationsPage = lazy(() => import('../pages/admin/AdminServiceCustomizationsPage'));
 const AdminPackagesPage = lazy(() => import('../pages/admin/AdminPackagesPage'));
 const UsersPage = lazy(() => import('../pages/admin/UsersPage'));
 const AuditLogsPage = lazy(() => import('../pages/admin/AuditLogsPage'));
@@ -386,6 +387,16 @@ const AppRouter = () => {
               <ProtectedRoute>
                 <RoleGuard roles={[ROLES.ADMIN]}>
                   <AdminServicesPage />
+                </RoleGuard>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path={ROUTES.ADMIN_SERVICE_CUSTOMIZATIONS}
+            element={
+              <ProtectedRoute>
+                <RoleGuard roles={[ROLES.ADMIN]}>
+                  <AdminServiceCustomizationsPage />
                 </RoleGuard>
               </ProtectedRoute>
             }

@@ -11,6 +11,71 @@ import { formatDate } from '../../utils/formatters';
 
 const { Option } = Select;
 
+const ExpandedBookingRow = ({ bookingId }) => {
+  const [booking, setBooking] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await bookingService.getBookingById(bookingId);
+        if (res.success) {
+          setBooking(res.data);
+        }
+      } catch (err) {
+        message.error('Failed to load booking customizations');
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [bookingId]);
+
+  if (loading) return <span style={{ fontSize: 13, color: '#64748b' }}>Loading customizations...</span>;
+  if (!booking) return <span style={{ fontSize: 13, color: '#ef4444' }}>Failed to load details.</span>;
+
+  let basePrice = Number(booking.subtotal);
+  let addOnsTotal = 0;
+
+  if (booking.customizations && booking.customizations.length > 0) {
+    addOnsTotal = booking.customizations.reduce((sum, c) => sum + Number(c.total_price), 0);
+    basePrice = Number(booking.subtotal) - addOnsTotal;
+  }
+
+  return (
+    <div style={{ padding: '12px 16px', background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+      <p style={{ margin: '0 0 8px 0', fontSize: 13 }}><strong>Customization & Price Breakdown:</strong></p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 12, fontSize: 13 }}>
+        <div>Base Package Price: <strong>${basePrice.toFixed(2)}</strong></div>
+        <div>Add-on Amount: <strong>${addOnsTotal.toFixed(2)}</strong></div>
+        <div>Final Booking Price: <strong style={{ color: '#16a34a' }}>${booking.total_amount.toFixed(2)}</strong></div>
+      </div>
+      
+      {booking.customizations && booking.customizations.length > 0 ? (
+        <div>
+          <p style={{ margin: '8px 0 4px', fontSize: 13 }}><strong>Selected Customizations:</strong></p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {booking.customizations.map(c => (
+              <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', maxWidth: 600, fontSize: 12 }}>
+                <span>
+                  <Tag color="cyan" style={{ fontSize: 11 }}>{c.group_name}</Tag>
+                  <strong>{c.option_name}</strong>
+                  {c.quantity > 1 && ` x ${c.quantity}`}
+                </span>
+                <span style={{ color: Number(c.total_price) === 0 ? '#16a34a' : '#475569', fontWeight: 600 }}>
+                  {Number(c.total_price) === 0 ? 'Included' : `$${Number(c.total_price).toFixed(2)}`}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <p style={{ margin: 0, color: '#64748b', fontSize: 12 }}>No customizations selected.</p>
+      )}
+    </div>
+  );
+};
+
 const AdminBookingsPage = () => {
   const [bookings, setBookings] = useState([]);
   const [volunteers, setVolunteers] = useState([]);
@@ -128,7 +193,13 @@ const AdminBookingsPage = () => {
     {
       title: 'Service',
       dataIndex: 'service_name',
-      key: 'service_name'
+      key: 'service_name',
+      render: (text, r) => (
+        <div>
+          <span>{text}</span>
+          <Tag color="blue" style={{ marginLeft: 8 }}>{r.package_name || 'Standard'}</Tag>
+        </div>
+      )
     },
     {
       title: 'Schedule',
@@ -260,6 +331,10 @@ const AdminBookingsPage = () => {
           pageSize,
           total,
           onChange: (p, ps) => { setPage(p); setPageSize(ps); }
+        }}
+        expandable={{
+          expandedRowRender: record => <ExpandedBookingRow bookingId={record.id} />,
+          rowExpandable: () => true
         }}
       />
 

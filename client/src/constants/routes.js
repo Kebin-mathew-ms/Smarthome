@@ -11,6 +11,7 @@ export const ROUTES = {
   ADMIN_CATEGORIES: '/admin/categories',
   ADMIN_SUBCATEGORIES: '/admin/subcategories',
   ADMIN_SERVICES: '/admin/services',
+  ADMIN_SERVICE_CUSTOMIZATIONS: '/admin/services/:serviceId/customizations',
   ADMIN_PACKAGES: '/admin/packages',
   ADMIN_USERS: '/admin/users',
   ADMIN_AUDIT_LOGS: '/admin/audit-logs',

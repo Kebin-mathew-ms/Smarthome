@@ -5,6 +5,7 @@ const addressRepository = require('../repositories/address.repository');
 const invoiceRepository = require('../repositories/invoice.repository');
 const notificationRepository = require('../repositories/notification.repository');
 const paymentRepository = require('../repositories/payment.repository');
+const customizationRepository = require('../repositories/customization.repository');
 const auditLogService = require('./auditLog.service');
 
 const { generateBookingNumber, generateInvoiceNumber } = require('../utils/invoice.util');
@@ -42,18 +43,93 @@ class BookingService {
     }
 
     // Determine Price
-    let price = Number(service.starting_price);
+    let basePrice = Number(service.starting_price);
     let pkgName = null;
 
     if (package_id) {
       const pkg = await servicePackageRepository.findById(package_id);
       if (pkg && pkg.service_id === Number(service_id)) {
-        price = Number(pkg.price);
+        basePrice = Number(pkg.price);
         pkgName = pkg.package_name;
       }
     }
 
-    const subtotal = price;
+    // Resolve Customizations
+    const dbCustomizations = await customizationRepository.getCustomizations(service_id, package_id);
+    const selectedCustomizations = data.customizations || [];
+
+    const customizationsCompiled = [];
+    const groupSelections = {};
+
+    // Build helper map of options
+    const optionsMap = {};
+    for (const group of dbCustomizations) {
+      for (const opt of group.options) {
+        optionsMap[opt.id] = { opt, group };
+      }
+    }
+
+    for (const selection of selectedCustomizations) {
+      const optionId = selection.option_id;
+      const quantity = selection.quantity === undefined ? 1 : Number(selection.quantity);
+
+      if (!optionsMap[optionId]) {
+        const error = new Error(`Invalid customization option selected.`);
+        error.statusCode = 400;
+        throw error;
+      }
+
+      if (!Number.isInteger(quantity) || quantity < 0) {
+        const error = new Error(`Invalid quantity for customization option.`);
+        error.statusCode = 400;
+        throw error;
+      }
+
+      const { opt, group } = optionsMap[optionId];
+
+      // Validate quantity rules if applicable
+      if (group.selection_type === 'quantity') {
+        if (opt.min_quantity !== null && quantity < opt.min_quantity) {
+          const error = new Error(`Quantity for option '${opt.option_name}' cannot be less than ${opt.min_quantity}.`);
+          error.statusCode = 400;
+          throw error;
+        }
+        if (opt.max_quantity !== null && quantity > opt.max_quantity) {
+          const error = new Error(`Quantity for option '${opt.option_name}' cannot exceed ${opt.max_quantity}.`);
+          error.statusCode = 400;
+          throw error;
+        }
+      }
+
+      // Track group selections to enforce mutual exclusion for 'single'
+      if (!groupSelections[group.id]) {
+        groupSelections[group.id] = [];
+      }
+      groupSelections[group.id].push(opt.id);
+
+      if (group.selection_type === 'single' && groupSelections[group.id].length > 1) {
+        const error = new Error(`Multiple options selected from single-select group '${group.group_name}'.`);
+        error.statusCode = 400;
+        throw error;
+      }
+
+      const optionPrice = Number(opt.price);
+      const isIncluded = Boolean(opt.is_included);
+      const itemTotalPrice = isIncluded ? 0.00 : Number((optionPrice * quantity).toFixed(2));
+
+      customizationsCompiled.push({
+        group_id: group.id,
+        option_id: opt.id,
+        group_name: group.group_name,
+        option_name: opt.option_name,
+        price: optionPrice,
+        quantity,
+        total_price: itemTotalPrice
+      });
+    }
+
+    const addOnsTotal = customizationsCompiled.reduce((sum, item) => sum + item.total_price, 0);
+    const subtotal = basePrice + addOnsTotal;
     const tax_amount = Number((subtotal * 0.10).toFixed(2)); // 10% tax
     const discount_amount = 0.00;
     const total_amount = subtotal + tax_amount - discount_amount;
@@ -75,7 +151,8 @@ class BookingService {
       subtotal,
       tax_amount,
       discount_amount,
-      total_amount
+      total_amount,
+      customizations: customizationsCompiled
     });
 
     // Create Initial Payment Record
