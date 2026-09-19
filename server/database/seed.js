@@ -499,6 +499,46 @@ async function seed() {
       { volunteer_id: vol1Id, booking_id: booking1Id, check_in_time: '2026-07-20 09:55:00', check_out_time: '2026-07-20 12:30:00', notes: 'Job completed smoothly.' }
     ]);
 
+    // ── 12. Service Customizations (Groups, Options & Package Configs) ────────
+    logger.info('  → Seeding service customization groups, options & package configs...');
+    const [cgAc1, cgAc2, cgClean1, cgClean2, cgSofa1, cgSofa2, cgElec1] = await insert(connection, 'customization_groups', [
+      { service_id: svc6Id, group_name: 'Unit Count & Type', group_description: 'Select number of AC units to service', selection_type: 'single', display_order: 1, is_active: true },
+      { service_id: svc6Id, group_name: 'Add-on Services', group_description: 'Optional add-on treatments for AC', selection_type: 'multi', display_order: 2, is_active: true },
+      { service_id: svc3Id, group_name: 'Property Size & Layout', group_description: 'Specify area size', selection_type: 'single', display_order: 1, is_active: true },
+      { service_id: svc3Id, group_name: 'Deep Clean Add-ons', group_description: 'Extra cleaning targets', selection_type: 'multi', display_order: 2, is_active: true },
+      { service_id: svc4Id, group_name: 'Sofa Seater Capacity', group_description: 'Choose your sofa size', selection_type: 'single', display_order: 1, is_active: true },
+      { service_id: svc4Id, group_name: 'Fabric Protection Coating', group_description: 'Spill and stain protection', selection_type: 'toggle', display_order: 2, is_active: true },
+      { service_id: svc1Id, group_name: 'Additional Power Sockets', group_description: 'Add extra power points', selection_type: 'quantity', display_order: 1, is_active: true }
+    ]);
+
+    const [optAc1, optAc2, optAcAdd1, optAcAdd2, optClean1, optCleanAdd1, optCleanAdd2, optSofa1, optSofa2, optSofaCoat, optElecSock] = await insert(connection, 'customization_options', [
+      { group_id: cgAc1, option_name: '1 Split AC Unit', description: 'Includes filter jet wash and cooling check', price: 0.00, display_order: 1, is_active: true },
+      { group_id: cgAc1, option_name: '2 Split AC Units', description: 'Service 2 split units in same visit', price: 499.00, display_order: 2, is_active: true },
+      { group_id: cgAc2, option_name: 'Eco Gas Top-Up (R32/R410)', description: 'Refill refrigerant gas up to 20%', price: 450.00, display_order: 1, is_active: true },
+      { group_id: cgAc2, option_name: 'Anti-Bacterial Foam Spray', description: 'Eliminates 99.9% germs in cooling coils', price: 199.00, display_order: 2, is_active: true },
+      { group_id: cgClean1, option_name: 'Standard 3BHK Flat (Up to 1500 sq ft)', description: 'Coverage for standard 3BHK flat', price: 0.00, display_order: 1, is_active: true },
+      { group_id: cgClean2, option_name: 'Kitchen Cabinet Interior Scrubbing', description: 'Clean inside all drawers and cabinets', price: 399.00, display_order: 1, is_active: true },
+      { group_id: cgClean2, option_name: 'Balcony & Mesh Screen Wash', description: 'Scrub dust and grime off balcony wire meshes', price: 299.00, display_order: 2, is_active: true },
+      { group_id: cgSofa1, option_name: '3-Seater Fabric Sofa', description: 'Standard 3-seater sofa steam clean', price: 0.00, display_order: 1, is_active: true },
+      { group_id: cgSofa1, option_name: '5-Seater L-Shaped Sectional', description: 'Large corner sectional sofa', price: 400.00, display_order: 2, is_active: true },
+      { group_id: cgSofa2, option_name: 'Stain Guard Anti-Spill Hydrophobic Coating', description: 'Repels liquids and prevents deep stains', price: 299.00, display_order: 1, is_active: true },
+      { group_id: cgElecSock, option_name: '16A Heavy-Duty Power Socket', description: 'For AC, Geyser or Refrigerator', price: 150.00, min_quantity: 1, max_quantity: 10, display_order: 1, is_active: true }
+    ]);
+
+    await insert(connection, 'package_option_configs', [
+      { package_id: pkg6Id, option_id: optAc1, is_included: true, additional_price: 0.00, is_active: true },
+      { package_id: pkg6Id, option_id: optAc2, is_included: false, additional_price: 499.00, is_active: true },
+      { package_id: pkg6Id, option_id: optAcAdd1, is_included: false, additional_price: 450.00, is_active: true },
+      { package_id: pkg6Id, option_id: optAcAdd2, is_included: false, additional_price: 199.00, is_active: true },
+      { package_id: pkg3Id, option_id: optClean1, is_included: true, additional_price: 0.00, is_active: true },
+      { package_id: pkg3Id, option_id: optCleanAdd1, is_included: false, additional_price: 399.00, is_active: true },
+      { package_id: pkg3Id, option_id: optCleanAdd2, is_included: false, additional_price: 299.00, is_active: true },
+      { package_id: pkg4Id, option_id: optSofa1, is_included: true, additional_price: 0.00, is_active: true },
+      { package_id: pkg4Id, option_id: optSofa1, is_included: false, additional_price: 400.00, is_active: true },
+      { package_id: pkg4Id, option_id: optSofaCoat, is_included: false, additional_price: 299.00, is_active: true },
+      { package_id: pkg1Id, option_id: optElecSock, is_included: false, additional_price: 150.00, is_active: true }
+    ]);
+
     await connection.commit();
     logger.info('');
     logger.info('✅  ALL TABLES SEEDED SUCCESSFULLY!');
