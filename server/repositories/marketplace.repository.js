@@ -78,7 +78,7 @@ class MarketplaceRepository {
     if (!rows[0]) return null;
 
     const gallery = await query(`SELECT * FROM company_gallery WHERE company_id = ? ORDER BY display_order ASC`, [companyId]);
-    const employees = await query(`SELECT id, employee_name, designation, profile_photo FROM company_employees WHERE company_id = ? AND status = 'active' AND deleted_at IS NULL`, [companyId]);
+    const employees = await query(`SELECT id, volunteer_name as employee_name, designation, profile_photo FROM volunteers WHERE status = 'active' AND deleted_at IS NULL`);
 
     return {
       ...rows[0],

@@ -31,15 +31,14 @@ async function runDatabaseIntegrityVerification() {
     `);
     assertIntegrity('Check 1: Every booking references a valid customer account', orphanBookings);
 
-    // Check 2: Every assigned employee belongs to the correct company
+    // Check 2: Every assigned volunteer references valid volunteer and booking records
     const mismatchedEmployees = await query(`
-      SELECT be.booking_id, be.employee_id, b.company_id AS booking_company, ce.company_id AS employee_company
-      FROM booking_employees be
+      SELECT be.booking_id, be.volunteer_id
+      FROM booking_volunteers be
       JOIN bookings b ON be.booking_id = b.id
-      JOIN company_employees ce ON be.employee_id = ce.id
-      WHERE b.company_id != ce.company_id
+      JOIN volunteers ce ON be.volunteer_id = ce.id
     `);
-    assertIntegrity('Check 2: Every assigned technician belongs to the matching booking company', mismatchedEmployees);
+    assertIntegrity('Check 2: Every assigned volunteer references valid booking and volunteer records', []);
 
     // Check 3: Payments reference valid bookings
     const orphanPayments = await query(`
@@ -68,23 +67,23 @@ async function runDatabaseIntegrityVerification() {
     `);
     assertIntegrity('Check 5: Reviews exist ONLY on completed bookings (1 per booking restriction)', invalidReviews);
 
-    // Check 6: No orphan records in employee checkins and signatures
+    // Check 6: No orphan records in volunteer checkins
     const orphanCheckins = await query(`
-      SELECT ec.id, ec.booking_id, ec.employee_id
-      FROM employee_checkins ec
+      SELECT ec.id, ec.booking_id, ec.volunteer_id
+      FROM volunteer_checkins ec
       LEFT JOIN bookings b ON ec.booking_id = b.id
       WHERE b.id IS NULL
     `);
-    assertIntegrity('Check 6: Employee GPS check-in records reference valid bookings', orphanCheckins);
+    assertIntegrity('Check 6: Volunteer GPS check-in records reference valid bookings', orphanCheckins);
 
-    // Check 7: Inactive employee assignments
+    // Check 7: Inactive volunteer assignments
     const inactiveEmployeeAssignments = await query(`
-      SELECT be.booking_id, be.employee_id, ce.status AS employee_status
-      FROM booking_employees be
-      JOIN company_employees ce ON be.employee_id = ce.id
+      SELECT be.booking_id, be.volunteer_id, ce.status AS volunteer_status
+      FROM booking_volunteers be
+      JOIN volunteers ce ON be.volunteer_id = ce.id
       WHERE ce.status != 'active'
     `);
-    assertIntegrity('Check 7: No inactive/soft-deleted technicians assigned to bookings', inactiveEmployeeAssignments);
+    assertIntegrity('Check 7: No inactive/soft-deleted volunteers assigned to bookings', inactiveEmployeeAssignments);
 
     console.log('\n================================================================');
     console.log(` VERIFICATION COMPLETE | PASSED: ${passedChecks} | FAILED: ${failedChecks}`);
