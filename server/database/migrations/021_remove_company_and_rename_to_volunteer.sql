@@ -23,11 +23,14 @@ ALTER TABLE complaints MODIFY COLUMN company_id INT NULL;
 ALTER TABLE warranties MODIFY COLUMN company_id INT NULL;
 ALTER TABLE notification_queue MODIFY COLUMN company_id INT NULL;
 
--- 3. Update existing user roles
+-- 3. Expand role ENUM to allow Volunteer before updating values
+ALTER TABLE users MODIFY COLUMN role ENUM('Admin', 'Company', 'User', 'Employee', 'Volunteer') NOT NULL DEFAULT 'User';
+
+-- 4. Update existing user roles
 UPDATE users SET role = 'Volunteer' WHERE role = 'Employee';
 UPDATE users SET role = 'User' WHERE role = 'Company';
 
--- 4. Modify role ENUM in users table
+-- 5. Finalize role ENUM in users table
 ALTER TABLE users MODIFY COLUMN role ENUM('Admin', 'User', 'Volunteer') NOT NULL DEFAULT 'User';
 
 -- 5. Rename company_employees to volunteers (if present)
