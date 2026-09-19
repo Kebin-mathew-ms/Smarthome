@@ -9,6 +9,7 @@
     "dev": "nodemon index.js",
     "migrate": "node database/migrate.js",
     "seed": "node database/seed.js",
+    "seed:customizations": "node database/seed_customizations.js",
     "test": "jest --detectOpenHandles --runInBand"
   },
   "dependencies": {
