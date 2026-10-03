@@ -41,17 +41,22 @@ async function runMigrations() {
             'ER_CANT_CREATE_TABLE',
             'ER_WARN_DATA_TRUNCATED',
             'ER_TRUNCATED_WRONG_VALUE_FOR_FIELD',
-            'ER_TRUNCATED_WRONG_VALUE'
+            'ER_TRUNCATED_WRONG_VALUE',
+            'ER_FK_DUP_NAME',
+            'ER_CANNOT_ADD_FOREIGN_KEY_CONSTRAINT'
           ];
 
           const isNonFatal =
             nonFatalErrorCodes.includes(error.code) ||
-            (error.errno && [1091, 1060, 1061, 1050, 1146, 1054, 1072, 1090, 1265, 1366, 1264].includes(Number(error.errno))) ||
+            (error.errno && [1091, 1060, 1061, 1050, 1146, 1054, 1072, 1090, 1265, 1366, 1264, 1826, 1215, 1005].includes(Number(error.errno))) ||
             error.message.includes("Can't DROP") ||
             error.message.includes("already exists") ||
             error.message.includes("Doesn't exist") ||
             error.message.includes("Unknown column") ||
-            error.message.includes("Data truncated");
+            error.message.includes("Data truncated") ||
+            error.message.includes("Duplicate foreign key") ||
+            error.message.includes("foreign key constraint") ||
+            error.message.includes("Cannot add foreign key");
 
           if (isNonFatal) {
             logger.warn(`Skipping non-fatal error in ${file}: ${error.message}`);
