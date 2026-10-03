@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
   email VARCHAR(150) NOT NULL UNIQUE,
   phone VARCHAR(30) NOT NULL,
   password VARCHAR(255) NOT NULL,
-  role ENUM('Admin', 'Company', 'User', 'Employee') NOT NULL DEFAULT 'User',
+  role ENUM('Admin', 'Company', 'User', 'Employee', 'Volunteer') NOT NULL DEFAULT 'User',
   status ENUM('active', 'inactive', 'suspended') NOT NULL DEFAULT 'active',
   deleted_at TIMESTAMP NULL DEFAULT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

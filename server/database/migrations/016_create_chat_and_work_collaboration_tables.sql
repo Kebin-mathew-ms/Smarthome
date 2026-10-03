@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS chat_participants (
   id INT AUTO_INCREMENT PRIMARY KEY,
   room_id INT NOT NULL,
   user_id INT NOT NULL,
-  participant_role ENUM('Customer', 'Company', 'Employee', 'Admin') NOT NULL,
+  participant_role ENUM('Customer', 'Company', 'Employee', 'Volunteer', 'Admin') NOT NULL,
   joined_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   last_seen TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_cp_room (room_id),
