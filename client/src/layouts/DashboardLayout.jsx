@@ -4,26 +4,28 @@ import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import TopNav from './TopNav';
 import { useTheme } from '../hooks/useTheme';
+import { useAuth } from '../hooks/useAuth';
 
 const { Content } = Layout;
 
 const DashboardLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const { isDarkMode } = useTheme();
+  const { user } = useAuth();
 
   return (
     <Layout style={{ minHeight: '100vh', background: isDarkMode ? '#0b0f19' : '#f8fafc' }}>
-      <Sidebar collapsed={collapsed} onCollapse={setCollapsed} />
+      {user && <Sidebar collapsed={collapsed} onCollapse={setCollapsed} />}
       <Layout>
-        <TopNav />
+        <TopNav collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
         <Content
           style={{
-            margin: '24px',
-            padding: '24px',
+            margin: user ? '24px' : '0',
+            padding: user ? '24px' : '0',
             background: isDarkMode ? '#111827' : '#ffffff',
-            borderRadius: 12,
+            borderRadius: user ? 12 : 0,
             minHeight: 280,
-            border: `1px solid ${isDarkMode ? '#1e293b' : '#e2e8f0'}`
+            border: user ? `1px solid ${isDarkMode ? '#1e293b' : '#e2e8f0'}` : 'none'
           }}
         >
           <Outlet />

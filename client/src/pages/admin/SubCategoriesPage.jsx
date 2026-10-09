@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Input, Space, message, Select, Tag } from 'antd';
-import { Plus, Search, Edit2, Trash2, ShieldCheck, Layers } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, ShieldCheck, Layers, ArrowLeft } from 'lucide-react';
 import { useForm, Controller } from 'react-hook-form';
+import { useLocation, useNavigate } from 'react-router-dom';
 import PageHeader from '../../components/common/PageHeader';
 import AppTable from '../../components/common/AppTable';
 import AppButton from '../../components/common/AppButton';
@@ -11,10 +12,17 @@ import FormField from '../../components/common/FormField';
 import { showConfirmModal } from '../../components/common/ConfirmModal';
 import { adminService } from '../../services/admin.service';
 import { formatDate } from '../../utils/formatters';
+import { ROUTES } from '../../constants/routes';
 
 const { Option } = Select;
 
 const SubCategoriesPage = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const searchParams = new URLSearchParams(location.search);
+  const categoryParam = searchParams.get('category_id');
+
   const [subcategories, setSubcategories] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -22,7 +30,14 @@ const SubCategoriesPage = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState(undefined);
+  const [selectedCategory, setSelectedCategory] = useState(categoryParam ? Number(categoryParam) : undefined);
+
+  useEffect(() => {
+    const paramId = new URLSearchParams(location.search).get('category_id');
+    if (paramId) {
+      setSelectedCategory(Number(paramId));
+    }
+  }, [location.search]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSubcategory, setEditingSubcategory] = useState(null);
@@ -198,9 +213,14 @@ const SubCategoriesPage = () => {
         title="Service Subcategories"
         subtitle="Manage detailed sub-services (e.g. House Cleaning, Fan Repair, Leak Repair, Interior Painting)."
         extra={
-          <AppButton type="primary" icon={<Plus size={16} />} onClick={() => handleOpenModal()}>
-            Add Subcategory
-          </AppButton>
+          <Space>
+            <AppButton icon={<ArrowLeft size={16} />} onClick={() => navigate(ROUTES.ADMIN_CATEGORIES)}>
+              Back to Categories
+            </AppButton>
+            <AppButton type="primary" icon={<Plus size={16} />} onClick={() => handleOpenModal()}>
+              Add Subcategory
+            </AppButton>
+          </Space>
         }
       />
 

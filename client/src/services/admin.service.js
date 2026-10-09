@@ -122,7 +122,8 @@ export const adminService = {
 
   // Service Customization Management
   getServiceCustomizations: async (serviceId, packageId = null) => {
-    const params = packageId ? { package_id: packageId } : {};
+    const params = { include_empty: true };
+    if (packageId) params.package_id = packageId;
     return await api.get(`/services/${serviceId}/customizations`, { params });
   },
   createCustomizationGroup: async (serviceId, groupData) => {

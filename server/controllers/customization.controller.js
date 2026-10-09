@@ -6,8 +6,9 @@ class CustomizationController {
   async getServiceCustomizations(req, res, next) {
     try {
       const { serviceId } = req.params;
-      const { package_id } = req.query;
-      const customizations = await customizationRepository.getCustomizations(serviceId, package_id);
+      const { package_id, include_empty } = req.query;
+      const includeEmpty = include_empty === 'true' || include_empty === '1';
+      const customizations = await customizationRepository.getCustomizations(serviceId, package_id, includeEmpty);
       return sendSuccess(res, 'Customizations retrieved successfully', customizations, HTTP_STATUS.OK);
     } catch (error) {
       next(error);

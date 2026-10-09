@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Steps, Row, Col, Card, Typography, DatePicker, Select, Radio, Input, Button, Tag, Space, Descriptions, Switch, InputNumber, Divider, message } from 'antd';
-import { Calendar, Clock, MapPin, CreditCard, ShieldCheck, CheckCircle2, ArrowRight, ArrowLeft, Layers, Settings, Minus, Plus } from 'lucide-react';
+import { Steps, Row, Col, Card, Typography, DatePicker, Select, Radio, Input, Button, Tag, Space, Descriptions, Switch, InputNumber, Divider, ColorPicker, message } from 'antd';
+import { Calendar, Clock, MapPin, ShieldCheck, CheckCircle2, ArrowRight, ArrowLeft, Layers, Settings, Minus, Plus, Palette } from 'lucide-react';
 import dayjs from 'dayjs';
 import PageHeader from '../../components/common/PageHeader';
 import AppButton from '../../components/common/AppButton';
@@ -22,6 +22,19 @@ const timeSlots = [
   '04:00 PM - 06:00 PM'
 ];
 
+const presetSwatches = [
+  { name: 'Pure White', color: '#FFFFFF' },
+  { name: 'Soft Sky Blue', color: '#E0F2FE' },
+  { name: 'Royal Navy Blue', color: '#1E3A8A' },
+  { name: 'Sage Herbal Green', color: '#84A98C' },
+  { name: 'Classic Warm Beige', color: '#E5D9C5' },
+  { name: 'Sunset Coral', color: '#EA580C' },
+  { name: 'Charcoal Slate', color: '#334155' },
+  { name: 'Blush Rose Pink', color: '#FDA4AF' },
+  { name: 'Luxury Gold', color: '#D97706' },
+  { name: 'Matte Jet Black', color: '#18181B' }
+];
+
 const BookingWizardPage = () => {
   const { serviceId } = useParams();
   const navigate = useNavigate();
@@ -39,6 +52,10 @@ const BookingWizardPage = () => {
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [specialInstructions, setSpecialInstructions] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('Cash');
+
+  // Paint Color Selection State (For Painting Category)
+  const [selectedPaintColor, setSelectedPaintColor] = useState('#1E3A8A');
+  const [customColorName, setCustomColorName] = useState('Royal Navy Blue');
 
   // Customization Options State
   const [customizationGroups, setCustomizationGroups] = useState([]);
@@ -128,6 +145,12 @@ const BookingWizardPage = () => {
     );
   }
 
+  const isPaintingService = Boolean(
+    service?.category_name?.toLowerCase().includes('paint') ||
+    service?.service_name?.toLowerCase().includes('paint') ||
+    service?.description?.toLowerCase().includes('paint')
+  );
+
   // Price Calculation
   let basePrice = Number(service.starting_price);
   let pkgObj = null;
@@ -208,9 +231,30 @@ const BookingWizardPage = () => {
       const customizationsList = Object.values(selectedCustomizations)
         .filter(x => x && x.option_id)
         .map(c => ({
+          group_id: c.group_id,
           option_id: c.option_id,
-          quantity: c.quantity
+          group_name: c.group_name,
+          option_name: c.option_name,
+          price: c.price,
+          quantity: c.quantity,
+          total_price: c.is_included ? 0 : Number(c.price) * c.quantity
         }));
+
+      if (isPaintingService) {
+        customizationsList.push({
+          group_id: null,
+          option_id: null,
+          group_name: 'Selected Paint Color',
+          option_name: `${customColorName} (${selectedPaintColor})`,
+          price: 0,
+          quantity: 1,
+          total_price: 0
+        });
+      }
+
+      const finalInstructions = isPaintingService
+        ? `Selected Wall Paint Color: ${customColorName} (${selectedPaintColor})\n${specialInstructions}`.trim()
+        : specialInstructions;
 
       const payload = {
         service_id: service.id,
@@ -219,7 +263,7 @@ const BookingWizardPage = () => {
         scheduled_date: scheduledDate.format('YYYY-MM-DD'),
         scheduled_time: scheduledTime,
         payment_method: paymentMethod,
-        special_instructions: specialInstructions,
+        special_instructions: finalInstructions,
         customizations: customizationsList
       };
 
@@ -310,10 +354,114 @@ const BookingWizardPage = () => {
           <div>
             <Title level={4} style={{ marginBottom: 20 }}>2. Customize Your Service</Title>
 
+            {/* Painting Color Picker Section */}
+            {isPaintingService && (
+              <Card
+                title={
+                  <Space>
+                    <Palette size={20} style={{ color: '#ec4899' }} />
+                    <span style={{ fontWeight: 700 }}>Wall Paint Color Selection</span>
+                    <Tag color="pink">Color Swatch & Picker</Tag>
+                  </Space>
+                }
+                style={{ marginBottom: 24, borderRadius: 16, border: '1px solid #f472b6', boxShadow: '0 4px 12px rgba(236, 72, 153, 0.08)' }}
+                bodyStyle={{ padding: 24 }}
+              >
+                <Text type="secondary" style={{ fontSize: 14, display: 'block', marginBottom: 16 }}>
+                  Choose your preferred wall paint color from popular palette swatches or use the custom color picker below.
+                </Text>
+
+                {/* Preset Color Swatches */}
+                <Row gutter={[12, 12]} style={{ marginBottom: 24 }}>
+                  {presetSwatches.map(swatch => (
+                    <Col xs={12} sm={8} md={4} key={swatch.color}>
+                      <div
+                        onClick={() => {
+                          setSelectedPaintColor(swatch.color);
+                          setCustomColorName(swatch.name);
+                        }}
+                        style={{
+                          border: selectedPaintColor === swatch.color ? '2px solid #ec4899' : '1px solid #cbd5e1',
+                          borderRadius: 12,
+                          padding: 10,
+                          cursor: 'pointer',
+                          textAlign: 'center',
+                          background: selectedPaintColor === swatch.color ? '#fdf2f8' : '#ffffff',
+                          boxShadow: selectedPaintColor === swatch.color ? '0 4px 12px rgba(236,72,153,0.15)' : 'none',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: '100%',
+                            height: 38,
+                            borderRadius: 8,
+                            background: swatch.color,
+                            border: '1px solid rgba(0,0,0,0.12)',
+                            marginBottom: 6
+                          }}
+                        />
+                        <div style={{ fontSize: 12, fontWeight: 700, color: '#1e293b' }}>{swatch.name}</div>
+                        <div style={{ fontSize: 10, color: '#64748b' }}>{swatch.color}</div>
+                      </div>
+                    </Col>
+                  ))}
+                </Row>
+
+                <Divider style={{ margin: '16px 0 20px' }} />
+
+                {/* Custom Color Picker & Live Swatch Preview */}
+                <Row gutter={[20, 20]} align="middle">
+                  <Col xs={24} sm={12}>
+                    <FormField label="Custom Color Picker">
+                      <Space size="middle">
+                        <ColorPicker
+                          showText
+                          value={selectedPaintColor}
+                          onChange={(color) => {
+                            const hex = color.toHexString();
+                            setSelectedPaintColor(hex);
+                            setCustomColorName(`Custom Color (${hex})`);
+                          }}
+                        />
+                        <Input
+                          style={{ width: 150 }}
+                          value={selectedPaintColor}
+                          onChange={(e) => {
+                            setSelectedPaintColor(e.target.value);
+                            setCustomColorName(`Custom Color (${e.target.value})`);
+                          }}
+                          placeholder="#1E3A8A"
+                        />
+                      </Space>
+                    </FormField>
+                  </Col>
+
+                  <Col xs={24} sm={12}>
+                    <div style={{ background: '#f8fafc', padding: 16, borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 16 }}>
+                      <div
+                        style={{
+                          width: 52,
+                          height: 52,
+                          borderRadius: 12,
+                          background: selectedPaintColor,
+                          border: '3px solid #ffffff',
+                          boxShadow: '0 4px 10px rgba(0,0,0,0.15)'
+                        }}
+                      />
+                      <div>
+                        <Text type="secondary" style={{ fontSize: 11, textTransform: 'uppercase', tracking: '0.05em' }}>Active Color Choice</Text>
+                        <strong style={{ fontSize: 15, display: 'block', color: '#0f172a' }}>{customColorName}</strong>
+                        <span style={{ fontSize: 12, color: '#64748b' }}>Hex Code: {selectedPaintColor}</span>
+                      </div>
+                    </div>
+                  </Col>
+                </Row>
+              </Card>
+            )}
+
             {customizationLoading ? (
               <SkeletonCard rows={4} />
-            ) : customizationGroups.length === 0 ? (
-              <p>No customization options available for this service. Proceed to Address.</p>
             ) : (
               <div style={{ marginBottom: 32 }}>
                 {customizationGroups.map(group => (
@@ -548,6 +696,17 @@ const BookingWizardPage = () => {
                   <Descriptions.Item label="Service">{service.service_name}</Descriptions.Item>
                   <Descriptions.Item label="Package">{pkgObj ? pkgObj.package_name : 'Standard'}</Descriptions.Item>
                   <Descriptions.Item label="Schedule">{scheduledDate.format('YYYY-MM-DD')} ({scheduledTime})</Descriptions.Item>
+                  
+                  {isPaintingService && (
+                    <Descriptions.Item label="Wall Paint Color Selection">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{ width: 22, height: 22, borderRadius: 6, background: selectedPaintColor, border: '1px solid rgba(0,0,0,0.2)' }} />
+                        <strong style={{ fontSize: 13 }}>{customColorName}</strong>
+                        <Tag color="purple">{selectedPaintColor}</Tag>
+                      </div>
+                    </Descriptions.Item>
+                  )}
+
                   {Object.values(selectedCustomizations).filter(x => x && x.option_id).length > 0 && (
                     <Descriptions.Item label="Selected Customizations">
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>

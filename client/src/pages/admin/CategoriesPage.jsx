@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Input, Space, message, Select, Row, Col, Card, Typography } from 'antd';
-import { Plus, Search, Edit2, Trash2, Layers } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, Layers, ShieldCheck } from 'lucide-react';
 import { useForm, Controller } from 'react-hook-form';
 import { useLocation, useNavigate } from 'react-router-dom';
 import PageHeader from '../../components/common/PageHeader';
@@ -156,6 +156,14 @@ const CategoriesPage = () => {
       key: 'actions',
       render: (_, record) => (
         <Space size="small">
+          <AppButton
+            icon={<ShieldCheck size={16} />}
+            size="small"
+            style={{ color: '#0d9488', borderColor: '#0d9488', fontWeight: 600 }}
+            onClick={() => navigate(`/admin/subcategories?category_id=${record.id}`)}
+          >
+            Subcategories
+          </AppButton>
           <AppButton icon={<Edit2 size={16} />} size="small" onClick={() => handleOpenModal(record)}>
             Edit
           </AppButton>

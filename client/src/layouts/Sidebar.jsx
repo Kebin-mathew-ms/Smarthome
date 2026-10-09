@@ -20,19 +20,15 @@ const Sidebar = ({ collapsed, onCollapse }) => {
   if (user?.role === ROLES.ADMIN) {
     menuItems = [
       { key: ROUTES.ADMIN_DASHBOARD, icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
-      { key: ROUTES.ANALYTICS, icon: <TrendingUp size={18} />, label: 'Analytics' },
       { key: ROUTES.REPORTS, icon: <BarChart2 size={18} />, label: 'Reports & Exports' },
-      { key: ROUTES.SYSTEM_HEALTH, icon: <Server size={18} />, label: 'System Health' },
       { key: ROUTES.ANNOUNCEMENTS, icon: <Megaphone size={18} />, label: 'Announcements' },
       { key: ROUTES.ADMIN_VOLUNTEERS, icon: <Users size={18} />, label: 'Staff Volunteers' },
       { key: ROUTES.ADMIN_SERVICES, icon: <Briefcase size={18} />, label: 'Services Catalog' },
       { key: ROUTES.ADMIN_PACKAGES, icon: <Layers size={18} />, label: 'Service Packages' },
       { key: ROUTES.ADMIN_BOOKINGS, icon: <Calendar size={18} />, label: 'Platform Bookings' },
       { key: ROUTES.COMPLAINTS, icon: <Ticket size={18} />, label: 'Support Complaints' },
-      { key: ROUTES.ADMIN_CATEGORIES, icon: <Layers size={18} />, label: 'Service Categories' },
-      { key: ROUTES.ADMIN_SUBCATEGORIES, icon: <ShieldCheck size={18} />, label: 'Subcategories' },
+      {key: ROUTES.ADMIN_CATEGORIES, icon: <Layers size={18} />, label: 'Service Categories' },
       { key: ROUTES.ADMIN_USERS, icon: <Users size={18} />, label: 'User Control' },
-      { key: ROUTES.ADMIN_AUDIT_LOGS, icon: <Activity size={18} />, label: 'Audit Logs' },
       { key: ROUTES.ADMIN_SETTINGS, icon: <Settings size={18} />, label: 'Settings' },
       { key: ROUTES.PROFILE, icon: <User size={18} />, label: 'My Profile' }
     ];

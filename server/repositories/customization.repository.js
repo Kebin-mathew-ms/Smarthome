@@ -1,24 +1,23 @@
 const { query } = require('../config/db');
 
 class CustomizationRepository {
-  async getCustomizations(serviceId, packageId = null) {
+  async getCustomizations(serviceId, packageId = null, includeEmpty = false) {
     // 1. Fetch groups
-    const groupsSql = `
-      SELECT * FROM customization_groups 
-      WHERE service_id = ? AND is_active = TRUE
-      ORDER BY display_order ASC, id ASC
-    `;
+    const groupsSql = includeEmpty
+      ? `SELECT * FROM customization_groups WHERE service_id = ? ORDER BY display_order ASC, id ASC`
+      : `SELECT * FROM customization_groups WHERE service_id = ? AND is_active = TRUE ORDER BY display_order ASC, id ASC`;
     const groups = await query(groupsSql, [serviceId]);
     if (groups.length === 0) return [];
 
     // 2. Fetch options
     const groupIds = groups.map(g => g.id);
-    const optionsSql = `
-      SELECT * FROM customization_options 
-      WHERE group_id IN (${groupIds.map(() => '?').join(', ')}) AND is_active = TRUE
-      ORDER BY display_order ASC, id ASC
-    `;
-    const options = await query(optionsSql, groupIds);
+    let options = [];
+    if (groupIds.length > 0) {
+      const optionsSql = includeEmpty
+        ? `SELECT * FROM customization_options WHERE group_id IN (${groupIds.map(() => '?').join(', ')}) ORDER BY display_order ASC, id ASC`
+        : `SELECT * FROM customization_options WHERE group_id IN (${groupIds.map(() => '?').join(', ')}) AND is_active = TRUE ORDER BY display_order ASC, id ASC`;
+      options = await query(optionsSql, groupIds);
+    }
 
     // 3. Fetch overrides if packageId is provided
     let overrides = [];
@@ -38,7 +37,7 @@ class CustomizationRepository {
       const is_included = override ? Boolean(override.is_included) : false;
       const is_active = override ? Boolean(override.is_active) : Boolean(opt.is_active);
 
-      if (is_active) {
+      if (includeEmpty || is_active) {
         if (!optionsMap[opt.group_id]) {
           optionsMap[opt.group_id] = [];
         }
@@ -58,10 +57,16 @@ class CustomizationRepository {
     }
 
     // Attach options to groups
-    return groups.map(g => ({
+    const result = groups.map(g => ({
       ...g,
       options: optionsMap[g.id] || []
-    })).filter(g => g.options.length > 0);
+    }));
+
+    if (includeEmpty) {
+      return result;
+    }
+
+    return result.filter(g => g.options.length > 0);
   }
 
   // Admin Group CRUD

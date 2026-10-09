@@ -55,22 +55,47 @@ const ExpandedBookingRow = ({ bookingId }) => {
         <div>
           <p style={{ margin: '8px 0 4px', fontSize: 13 }}><strong>Selected Customizations:</strong></p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {booking.customizations.map(c => (
-              <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', maxWidth: 600, fontSize: 12 }}>
-                <span>
-                  <Tag color="cyan" style={{ fontSize: 11 }}>{c.group_name}</Tag>
-                  <strong>{c.option_name}</strong>
-                  {c.quantity > 1 && ` x ${c.quantity}`}
-                </span>
-                <span style={{ color: Number(c.total_price) === 0 ? '#16a34a' : '#475569', fontWeight: 600 }}>
-                  {Number(c.total_price) === 0 ? 'Included' : `$${Number(c.total_price).toFixed(2)}`}
-                </span>
-              </div>
-            ))}
+            {booking.customizations.map(c => {
+              const hexMatch = c.option_name ? c.option_name.match(/#[0-9A-Fa-f]{6}/) : null;
+              const hexCode = hexMatch ? hexMatch[0] : null;
+
+              return (
+                <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', maxWidth: 600, fontSize: 12, alignItems: 'center' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                    <Tag color="cyan" style={{ fontSize: 11 }}>{c.group_name}</Tag>
+                    <strong>{c.option_name}</strong>
+                    {hexCode && (
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          width: 14,
+                          height: 14,
+                          borderRadius: '50%',
+                          backgroundColor: hexCode,
+                          border: '1px solid #ccc',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.15)'
+                        }}
+                        title={hexCode}
+                      />
+                    )}
+                    {c.quantity > 1 && ` x ${c.quantity}`}
+                  </span>
+                  <span style={{ color: Number(c.total_price) === 0 ? '#16a34a' : '#475569', fontWeight: 600 }}>
+                    {Number(c.total_price) === 0 ? 'Included' : `$${Number(c.total_price).toFixed(2)}`}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       ) : (
         <p style={{ margin: 0, color: '#64748b', fontSize: 12 }}>No customizations selected.</p>
+      )}
+
+      {booking.special_instructions && (
+        <div style={{ marginTop: 10, paddingTop: 8, borderTop: '1px dashed #cbd5e1', fontSize: 12, color: '#334155' }}>
+          <strong>Special Instructions / Notes:</strong> {booking.special_instructions}
+        </div>
       )}
     </div>
   );

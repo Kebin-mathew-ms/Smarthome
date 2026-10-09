@@ -172,21 +172,45 @@ const CustomerBookingDetailsPage = () => {
               <Descriptions.Item label="Payment Status"><StatusBadge status={booking.payment_status} /></Descriptions.Item>
               
               {booking.customizations && booking.customizations.length > 0 && (
-                <Descriptions.Item label="Selected Customizations" span={2}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    {booking.customizations.map(c => (
-                      <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontSize: 13 }}>
-                        <span>
-                          <Tag color="cyan">{c.group_name}</Tag>
-                          <strong>{c.option_name}</strong>
-                          {c.quantity > 1 && ` x ${c.quantity}`}
-                        </span>
-                        <span style={{ color: Number(c.total_price) === 0 ? '#16a34a' : '#475569' }}>
-                          {Number(c.total_price) === 0 ? 'Included' : `$${Number(c.total_price).toFixed(2)}`}
-                        </span>
-                      </div>
-                    ))}
+                <Descriptions.Item label="Selected Customizations & Color" span={2}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {booking.customizations.map(c => {
+                      const hexMatch = c.option_name.match(/#[0-9A-Fa-f]{6}/);
+                      const colorHex = hexMatch ? hexMatch[0] : null;
+                      return (
+                        <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', fontSize: 13 }}>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <Tag color={c.group_name === 'Selected Paint Color' ? 'purple' : 'cyan'}>{c.group_name}</Tag>
+                            {colorHex && (
+                              <span
+                                style={{
+                                  display: 'inline-block',
+                                  width: 18,
+                                  height: 18,
+                                  borderRadius: 4,
+                                  background: colorHex,
+                                  border: '1px solid rgba(0,0,0,0.2)'
+                                }}
+                              />
+                            )}
+                            <strong>{c.option_name}</strong>
+                            {c.quantity > 1 && ` x ${c.quantity}`}
+                          </span>
+                          <span style={{ color: Number(c.total_price) === 0 ? '#16a34a' : '#475569' }}>
+                            {Number(c.total_price) === 0 ? 'Included' : `$${Number(c.total_price).toFixed(2)}`}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
+                </Descriptions.Item>
+              )}
+
+              {booking.special_instructions && (
+                <Descriptions.Item label="Special Instructions & Access Notes" span={2}>
+                  <Paragraph style={{ margin: 0, whiteSpace: 'pre-line' }}>
+                    {booking.special_instructions}
+                  </Paragraph>
                 </Descriptions.Item>
               )}
 

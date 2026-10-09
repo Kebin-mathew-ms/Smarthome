@@ -67,7 +67,7 @@ const TopNav = ({ collapsed, onToggle }) => {
           title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
         />
 
-        {user && (
+        {user ? (
           <Dropdown menu={{ items: userMenuItems }} trigger={['click']} placement="bottomRight">
             <Space style={{ cursor: 'pointer' }}>
               <Avatar style={{ backgroundColor: '#2563eb' }} icon={<UserOutlined />}>
@@ -79,6 +79,14 @@ const TopNav = ({ collapsed, onToggle }) => {
               </div>
             </Space>
           </Dropdown>
+        ) : (
+          <Button
+            type="primary"
+            onClick={() => navigate(ROUTES.LOGIN)}
+            style={{ borderRadius: 8, fontWeight: 600, background: '#2563eb' }}
+          >
+            Sign In / Login
+          </Button>
         )}
       </div>
     </Header>
